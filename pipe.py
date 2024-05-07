@@ -17,7 +17,7 @@ from search import (
     recursive_best_first_search,
 )
 
-combinacoes_imp = {
+combinacoes_imp = {                 #### fecho nao aponta para fecho
     "BB": { 
         "right": ("BD", "FB", "FC", "FD", "LV", "VB", "VD"),
         "down": ("BB", "FB", "FD", "FE", "LH", "VB", "VE")},
@@ -32,12 +32,12 @@ combinacoes_imp = {
         "down": ("BB", "FB", "FD", "FE", "LH", "VB", "VE")},
     "FB": { 
         "right": ("FE", "BB", "BC", "LH", "VC", "VE"),
-        "down": ("BB", "FB", "FD", "FE", "LH", "VB", "VE")},
+        "down": ("BB", "FB", "FD", "FE", "LH", "VB", "VE", "FC")},
     "FC": {
         "right": ("FE", "BB", "BC", "LH", "VC", "VE"),
         "down": ("BD", "BE", "FC", "LV", "VC", "VD")},
     "FD": {
-        "right": ("BD", "FB", "FC", "FD", "LV", "VB", "VD"),
+        "right": ("BD", "FB", "FC", "FD", "LV", "VB", "VD", "FE"),
         "down": ("BD", "BE", "FC", "LV", "VC", "VD")},
     "FE": {
         "right": ("FE", "BB", "BC", "LH", "VC", "VE"),
@@ -70,6 +70,10 @@ direcoes = {
     'V': {'True': 'H', 'False': 'H'},
     'H': {'True': 'V', 'False': 'V'}
     }
+
+    ["C", "D", "B", "E"]
+    True == +1
+    ["V", "H"]
 
 class PipeManiaState:
     state_id = 0
@@ -234,11 +238,12 @@ class PipeMania(Problem):
         peca = new_state.board.matriz_board[linha][coluna]
         nova_peca = self.roda_peca(peca, direcao)
         new_state.board.matriz_board[linha][coluna] = nova_peca
+        new_state.board.board_print()
     
         return new_state
 
     def goal_test(self, state: PipeManiaState):
-
+        #state.board.board_print()
         ult_pos = state.board.board_size()-1
         if (state.board.matriz_board[0][0] in ("VD", "VC", "VE", "FE", "FC")):
             return False
@@ -249,7 +254,7 @@ class PipeMania(Problem):
         if (state.board.matriz_board[ult_pos][ult_pos] in ("VB", "VD", "VE", "FD", "FB")):
             return False
 
-        for coluna in range(ult_pos+1):  
+        for coluna in range(ult_pos):  
             for linha in range(ult_pos+1):
                 peca = state.board.matriz_board[linha][coluna]
                 peca_direita = None
@@ -266,7 +271,6 @@ class PipeMania(Problem):
                     
     def h(self, node: Node):
         self.roda_pecas_cantos(node.state)
-        node.state.board.board_print()
         heuri = node.state.board.total_posicoes_imp()
         print("heuri ", heuri)
 
@@ -281,10 +285,10 @@ if __name__ == "__main__":
 
     board = Board.parse_instance()
     problem = PipeMania(board)
-    goal_node = astar_search(problem)
+    goal_node = greedy_search(problem)
 
     
-    print("is goal? ", problem.goal_test(problem))
+    #print("is goal? ", problem.goal_test(problem))
     #problem.board.board_print()
     """"
     s0 = PipeManiaState(board)
