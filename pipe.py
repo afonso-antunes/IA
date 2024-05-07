@@ -62,6 +62,15 @@ combinacoes_imp = {
         "down": ("BB", "FB", "FD", "FE", "LH", "VB", "VE")}
     }
 
+direcoes = {
+    'C': {'True': 'D', 'False': 'E'},
+    'D': {'True': 'B', 'False': 'C'},
+    'B': {'True': 'E', 'False': 'D'},
+    'E': {'True': 'C', 'False': 'B'},
+    'V': {'True': 'H', 'False': 'H'},
+    'H': {'True': 'V', 'False': 'V'}
+    }
+
 class PipeManiaState:
     state_id = 0
 
@@ -91,27 +100,39 @@ class Board:
         self.matriz_board = []
 
 
+    def total_posicoes_imp(self):
+
+        total_imp = 0
+        ult_pos = self.board_size()-1
+        for coluna in range(ult_pos+1):  
+            for linha in range(ult_pos+1):
+                peca = self.matriz_board[linha][coluna]
+                peca_direita = None
+                peca_baixo = None
+                
+                if linha != ult_pos:
+                    peca_baixo = self.matriz_board[linha + 1][coluna]
+                if coluna != ult_pos:
+                    peca_direita = self.matriz_board[linha][coluna + 1]
+
+                if peca_direita in combinacoes_imp[peca]["right"]:
+                    total_imp += 1
+                if peca_baixo in combinacoes_imp[peca]["down"]:
+                    total_imp += 1   
+
+        return total_imp
+    
+
     def board_print(self):
         for linha in self.matriz_board:
-            print(' '.join(linha))
+            print(" ".join(linha))
 
     def board_size(self):
         if len(board.matriz_board) > 0:
             return len(self.matriz_board)
         else:
             return 0  
-    
-    def combinacoes_impossiveis(self, peca, peca_direita, peca_baixo):
-       # esta funcao mostra que pecas NAO PODEM estar do lado direito e em baixo da peca especifica
-        global combinacoes_imp
-        
-        
-                    
-        if peca_direita in combinacoes_imp[peca]["right"] or peca_baixo in combinacoes_imp[peca]["down"]:
-            return False   # Quer dizer que as pecas a direita ou em baixo estao numa posicao errada
-        else:
-            return True
-        
+       
     def get_value(self, row: int, col: int) -> str:
         if 0 <= row < len(self.matriz_board) and 0 <= col < len(self.matriz_board[0]):
             return self.matriz_board[row][col]
@@ -160,12 +181,10 @@ class Board:
             linha += 1
             linha_atual = stdin.readline().split()
 
-        
 
         return board
        
     
-
 
 class PipeMania(Problem):
     def __init__(self, board: Board):
@@ -173,32 +192,35 @@ class PipeMania(Problem):
         self.initial = PipeManiaState(board)
 
     def actions(self, state: PipeManiaState):
-        acoes = []
-        linha = 0
-        coluna = 0
-        for linha in range(self.board.board_size()):
-            for coluna in range(self.board.board_size()):
-                acoes.append((linha, coluna, 'True'))
-                acoes.append((linha, coluna, 'False'))
+        for linha in range(state.board.board_size()):                # actions pode limitar as pecas
+            for coluna in range(state.board.board_size()):
+                yield (linha, coluna, 'True')
+                yield (linha, coluna, 'False')
 
-        return acoes
+        
     
-    
+    def roda_pecas_cantos(self, state):
+        ult_lin_col = state.board.board_size()-1
 
+        if state.board.get_value(ult_lin_col, ult_lin_col)[0] == 'V':    # canto inf dir
+            state.board.matriz_board[ult_lin_col][ult_lin_col] = 'VC'
+             
+        if state.board.get_value(0, 0)[0] == 'V': # canto sup esq
+            state.board.matriz_board[0][0] = 'VB'
+    
+        if state.board.get_value(0, ult_lin_col)[0] == 'V': # canto sup dir
+            state.board.matriz_board[0][ult_lin_col] =  'VE'
+        
+        if state.board.get_value(ult_lin_col, 0)[0] == 'V': # canto  inf esq
+            state.board.matriz_board[ult_lin_col][0] =  'VD'
+
+        return 
+    
 
     def roda_peca(self, peca, direcao):
         # True -> direcao ponteiro do relogio
-        direcoes = {
-        'C': {'True': 'D', 'False': 'E'},
-        'D': {'True': 'B', 'False': 'C'},
-        'B': {'True': 'E', 'False': 'D'},
-        'E': {'True': 'C', 'False': 'B'},
-        'V': {'True': 'H', 'False': 'H'},
-        'H': {'True': 'V', 'False': 'V'}
-        }
-
+        
         parte1, parte2 = peca[0], peca[1]
-
         nova_parte2 = direcoes[parte2][direcao]
         nova_peca = parte1 + nova_parte2
         return nova_peca
@@ -206,17 +228,17 @@ class PipeMania(Problem):
     def result(self, state: PipeManiaState, action):
         
         new_state = state.copy_state()  
-    
         linha, coluna, direcao_bool = action  
+        
         direcao = 'True' if direcao_bool else 'False'
         peca = new_state.board.matriz_board[linha][coluna]
         nova_peca = self.roda_peca(peca, direcao)
-        
         new_state.board.matriz_board[linha][coluna] = nova_peca
+    
         return new_state
 
     def goal_test(self, state: PipeManiaState):
-        
+
         ult_pos = state.board.board_size()-1
         if (state.board.matriz_board[0][0] in ("VD", "VC", "VE", "FE", "FC")):
             return False
@@ -227,35 +249,44 @@ class PipeMania(Problem):
         if (state.board.matriz_board[ult_pos][ult_pos] in ("VB", "VD", "VE", "FD", "FB")):
             return False
 
-        for coluna in range(ult_pos):  
+        for coluna in range(ult_pos+1):  
             for linha in range(ult_pos+1):
                 peca = state.board.matriz_board[linha][coluna]
-                peca_direita = state.board.matriz_board[linha][coluna + 1]
-                if linha == ult_pos:
-                    peca_baixo = None
-                else:
+                peca_direita = None
+                peca_baixo = None
+                
+                if linha != ult_pos:
                     peca_baixo = state.board.matriz_board[linha + 1][coluna]
+                if coluna != ult_pos:
+                    peca_direita = state.board.matriz_board[linha][coluna + 1]
+
                 if peca_direita in combinacoes_imp[peca]["right"] or peca_baixo in combinacoes_imp[peca]["down"]:
                     return False   # Quer dizer que as pecas a direita ou em baixo estao numa posicao errada
         return True
                     
     def h(self, node: Node):
-        """Função heuristica utilizada para a procura A*."""
-        # TODO
-        pass
+        self.roda_pecas_cantos(node.state)
+        node.state.board.board_print()
+        heuri = node.state.board.total_posicoes_imp()
+        print("heuri ", heuri)
+
+        return heuri
 
     # TODO: outros metodos da classe
 
 
 if __name__ == "__main__":
     
+    ## usar get_value e ver se horizontal value e vertical podem ajudar
 
     board = Board.parse_instance()
     problem = PipeMania(board)
-    goal_node = depth_first_tree_search(problem)
-    print("is goal? ", problem.goal_test(goal_node.state))
-    """
-    #print(problem.board.board_size())
+    goal_node = astar_search(problem)
+
+    
+    print("is goal? ", problem.goal_test(problem))
+    #problem.board.board_print()
+    """"
     s0 = PipeManiaState(board)
     problem.board.board_print()
     print("Is goal?", problem.goal_test(s0))

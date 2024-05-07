@@ -93,6 +93,26 @@ matriz[i][j]
         }
 
 
+
+        # Função para obter as direções disponíveis para uma peça específica
+        def obter_direcoes_disponiveis(peca):
+        direcoes = []
+        if peca in combinacoes_possiveis:
+                combinacoes = combinacoes_possiveis[peca]
+                if "left" in combinacoes:
+                direcoes.append("left")
+                if "right" in combinacoes:
+                direcoes.append("right")
+                if "up" in combinacoes:
+                direcoes.append("up")
+                if "down" in combinacoes:
+                direcoes.append("down")
+        return direcoes
+
+        # Exemplo de uso da função
+        direcoes_VE = obter_direcoes_disponiveis("VE")
+        print("Direções disponíveis para a peça 'VE':", direcoes_VE)
+
         combinacoes_impossiveis = {
         "BB": { "right": ["BD", "FB", "FC", "FD", "LV", "VB", "VD"],
                 "down": ["BB", "FB", "FD", "FE", "LH", "VB", "VE"]},

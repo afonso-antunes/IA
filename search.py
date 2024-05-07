@@ -271,6 +271,8 @@ def best_first_graph_search(problem, f, display=False):
     frontier.append(node)
     explored = set()
     while frontier:
+        ###node.state.board.board_print()
+        print(node.state.board.total_posicoes_imp()) ######
         node = frontier.pop()
         if problem.goal_test(node.state):
             if display:
