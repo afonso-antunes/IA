@@ -74,10 +74,10 @@ matriz[i][j]
         "BE": {"up": ["BB", "BD", "BE", "FB", "LV", "VB", "VE"], 
                 "left": ["BB", "BC", "BD", "FD", "LH", "VB", "VD"], 
                 "down": ["BC", "BD", "BE", "FC", "LV", "VC", "VD"]},
-        "FB": {"down": ["BC", "BD", "BE", "FC", "LV", "VC", "VD"]},
-        "FC": {"up": ["BB", "BD", "BE", "FB", "LV", "VB", "VE"]},
-        "FD": {"right": ["BB", "BC", "BE", "FE", "LH", "VC", "VE"]},
-        "FE": {"left": ["BB", "BC", "BD", "FD", "LH", "VB", "VD"]},
+        "FB": {"down": ["BC", "BD", "BE", "LV", "VC", "VD"]},
+        "FC": {"up": ["BB", "BD", "BE", "LV", "VB", "VE"]},
+        "FD": {"right": ["BB", "BC", "BE", "LH", "VC", "VE"]},
+        "FE": {"left": ["BB", "BC", "BD", "LH", "VB", "VD"]},
         "LH": {"left": ["BB", "BC", "BD", "FD", "LH", "VB", "VD"], 
                 "right": ["BB", "BC", "BE", "FE", "LH", "VC", "VE"]},
         "LV": {"down": ["BC", "BD", "BE", "FC", "LV", "VC", "VD"], 
@@ -164,3 +164,68 @@ matriz[i][j]
     True == +1
     ["V", "H"]
     """
+
+
+
+
+    pecas_bordas_cantos = ( ("BB", "BC", "BE", "LH", "FE", "VC", "VE"),  # coluna esquerda
+                        ("BC", "BD", "BE", "LV", "FC", "VD", "VC"),  # linha de cima
+                        ("BB", "BD", "BE", "LV", "FB", "VE", "VB"),  # linha de baixo
+                        ("BC", "BD", "BB", "LH", "FD", "VD", "VB"),) # coluna direita
+
+
+
+
+ def penalizacao_bordas_cantos(self):
+        ult_pos = self.board_size()-1
+        penalizacao = 0
+        for linha in enumerate(ult_pos):
+            peca = self.matriz_board[linha][0]
+
+            if linha == 0:
+                if peca in pecas_bordas_cantos[0] or peca in pecas_bordas_cantos[1]:
+                    penalizacao += 100
+            
+            elif linha == ult_pos:
+                if peca in pecas_bordas_cantos[0] or peca in pecas_bordas_cantos[2]:
+                    penalizacao += 100
+            
+            else:
+                if peca in pecas_bordas_cantos[0]:
+                    penalizacao += 50
+
+
+
+def total_posicoes_imp(self):
+
+        total_imp = 0
+        ult_pos = self.board_size()-1
+        for coluna in range(ult_pos+1):  
+            for linha in range(ult_pos+1):
+                peca = self.matriz_board[linha][coluna]
+                peca_direita = None
+                peca_baixo = None
+                
+                if linha != ult_pos:
+                    peca_baixo = self.matriz_board[linha + 1][coluna]
+                if coluna != ult_pos:
+                    peca_direita = self.matriz_board[linha][coluna + 1]
+
+                if peca_direita in combinacoes_imp[peca]["right"]:
+                    total_imp += 1
+                if peca_baixo in combinacoes_imp[peca]["down"]:
+                    total_imp += 1   
+
+        return total_imp
+    
+
+
+
+    direcoes = {
+    'C': {'True': 'D', 'False': 'E'},
+    'D': {'True': 'B', 'False': 'C'},
+    'B': {'True': 'E', 'False': 'D'},
+    'E': {'True': 'C', 'False': 'B'},
+    'V': {'True': 'H', 'False': 'H'},
+    'H': {'True': 'V', 'False': 'V'}
+    }

@@ -17,59 +17,56 @@ from search import (
     recursive_best_first_search,
 )
 
-combinacoes_imp = {                 #### fecho nao aponta para fecho
-    "BB": { 
-        "right": ("BD", "FB", "FC", "FD", "LV", "VB", "VD"),
-        "down": ("BB", "FB", "FD", "FE", "LH", "VB", "VE")},
-    "BC": {
-        "right": ("BD", "FB", "FC", "FD", "LV", "VB", "VD"), 
-        "down": ("BD", "BE", "FC", "LV", "VC", "VD")},
-    "BD": {
-        "right": ("BD", "FB", "FC", "FD", "LV", "VB", "VD"), 
-        "down": ("BB", "FB", "FD", "FE", "LH", "VB", "VE")}, 
-    "BE": {
-        "right": ("FE", "BB", "BC", "LH", "VC", "VE"), 
-        "down": ("BB", "FB", "FD", "FE", "LH", "VB", "VE")},
-    "FB": { 
-        "right": ("FE", "BB", "BC", "LH", "VC", "VE"),
-        "down": ("BB", "FB", "FD", "FE", "LH", "VB", "VE", "FC")},
-    "FC": {
-        "right": ("FE", "BB", "BC", "LH", "VC", "VE"),
-        "down": ("BD", "BE", "FC", "LV", "VC", "VD")},
-    "FD": {
-        "right": ("BD", "FB", "FC", "FD", "LV", "VB", "VD", "FE"),
-        "down": ("BD", "BE", "FC", "LV", "VC", "VD")},
-    "FE": {
-        "right": ("FE", "BB", "BC", "LH", "VC", "VE"),
-        "down": ("BD", "BE", "FC", "LV", "VC", "VD")},
-    "LH": { 
-        "right": ("BD", "FB", "FC", "FD", "LV", "VB", "VD"),
-        "down": ("BD", "BE", "FC", "LV", "VC", "VD")},
-    "LV": {
-        "right": ("FE", "BB", "BC", "LH", "VC", "VE"), 
-        "down": ("BB", "FB", "FD", "FE", "LH", "VB", "VE")},
-    "VB": {
-        "right": ("BD", "FB", "FC", "FD", "LV", "VB", "VD"), 
-        "down": ("BB", "FB", "FD", "FE", "LH", "VB", "VE")},
-    "VC": { 
-        "right": ("FE", "BB", "BC", "LH", "VC", "VE"),
-        "down": ("BD", "BE", "FB", "FC", "LV", "VC", "VD")},
-    "VD": {
-        "right": ("BD", "FB", "FC", "FD", "LV", "VB", "VD"), 
-        "down": ("BD", "BE", "FB", "FC", "LV", "VC", "VD")},
-    "VE": { 
-        "right": ("FE", "BB", "BC", "LH", "VC", "VE"),
-        "down": ("BB", "FB", "FD", "FE", "LH", "VB", "VE")}
-    }
 
-direcoes = {
-    'C': {'True': 'D', 'False': 'E'},
-    'D': {'True': 'B', 'False': 'C'},
-    'B': {'True': 'E', 'False': 'D'},
-    'E': {'True': 'C', 'False': 'B'},
-    'V': {'True': 'H', 'False': 'H'},
-    'H': {'True': 'V', 'False': 'V'}
-    }
+direcoes = ("C", "D", "B", "E")
+
+
+combinacoes_possiveis = {                   
+        "BB": {
+            "left": ["BB", "BC", "BD", "FD", "LH", "VB", "VD"], 
+            "right": ["BB", "BC", "BE", "FE", "LH", "VC", "VE"],
+            "down": ["BC", "BD", "BE", "FC", "LV", "VC", "VD"]},
+        "BC": {
+            "left": ["BB", "BC", "BD", "FD", "LH", "VB", "VD"],
+            "right": ["BB", "BC", "BE", "FE", "LH", "VC", "VE"], 
+            "up": ["BB", "BD", "BE", "FB", "LV", "VB", "VE"]},
+        "BD": {
+            "up": ["BB", "BD", "BE", "FB", "LV", "VB", "VE"], 
+            "right": ["BB", "BC", "BE", "FE", "LH", "VC", "VE"], 
+            "down": ["BC", "BD", "BE", "FC", "LV", "VC", "VD"]},
+        "BE": {
+            "up": ["BB", "BD", "BE", "FB", "LV", "VB", "VE"], 
+            "left": ["BB", "BC", "BD", "FD", "LH", "VB", "VD"], 
+            "down": ["BC", "BD", "BE", "FC", "LV", "VC", "VD"]},
+        "FB": {
+            "down": ["BC", "BD", "BE", "LV", "VC", "VD"]},
+        "FC": {
+            "up": ["BB", "BD", "BE", "LV", "VB", "VE"]},
+        "FD": {
+            "right": ["BB", "BC", "BE", "LH", "VC", "VE"]},
+        "FE": {
+            "left": ["BB", "BC", "BD", "LH", "VB", "VD"]},
+        "LH": {
+            "left": ["BB", "BC", "BD", "FD", "LH", "VB", "VD"], 
+            "right": ["BB", "BC", "BE", "FE", "LH", "VC", "VE"]},
+        "LV": {
+            "down": ["BC", "BD", "BE", "FC", "LV", "VC", "VD"], 
+            "up": ["BB", "BD", "BE", "FB", "LV", "VB", "VE"]},
+        "VB": {
+            "right": ["BB", "BC", "BE", "FE", "LH", "VC", "VE"], 
+            "down": ["BC", "BD", "BE", "FC", "LV", "VC", "VD"]},
+        "VC": {
+            "left": ["BB", "BC", "BD", "FD", "LH", "VB", "VD"], 
+            "up": ["BB", "BD", "BE", "FB", "LV", "VB", "VE"]},
+        "VD": {
+            "right": ["BB", "BC", "BE", "FE", "LH", "VC", "VE"], 
+            "up": ["BB", "BD", "BE", "FB", "LV", "VB", "VE"]},
+        "VE": {
+            "left": ["BB", "BC", "BD", "FD", "LH", "VB", "VD"], 
+            "down": ["BC", "BD", "BE", "FC", "LV", "VC", "VD"]}
+        }
+
+
 
 class PipeManiaState:
     state_id = 0
@@ -102,26 +99,37 @@ class Board:
 
     def total_posicoes_imp(self):
 
-        total_imp = 0
+        penalizacoes = 0
         ult_pos = self.board_size()-1
-        for coluna in range(ult_pos+1):  
+
+        for coluna in range(ult_pos+1):
             for linha in range(ult_pos+1):
+                peca_direita, peca_esquerda, peca_cima, peca_baixo = None, None, None, None
                 peca = self.matriz_board[linha][coluna]
-                peca_direita = None
-                peca_baixo = None
-                
+
+                if linha != 0:
+                    peca_cima = self.matriz_board[linha - 1][coluna]
+                if coluna != 0:
+                    peca_esquerda = self.matriz_board[linha][coluna - 1]
                 if linha != ult_pos:
                     peca_baixo = self.matriz_board[linha + 1][coluna]
                 if coluna != ult_pos:
                     peca_direita = self.matriz_board[linha][coluna + 1]
 
-                if peca_direita in combinacoes_imp[peca]["right"]:
-                    total_imp += 1
-                if peca_baixo in combinacoes_imp[peca]["down"]:
-                    total_imp += 1   
+                direcoes_possiveis = combinacoes_possiveis[peca].keys()
+                if "left" in direcoes_possiveis and peca_esquerda not in combinacoes_possiveis[peca]["left"]:
+                    penalizacoes += 1
+                if "right" in direcoes_possiveis and peca_direita not in combinacoes_possiveis[peca]["right"]:
+                    penalizacoes += 1
+                if "up" in direcoes_possiveis and peca_cima not in combinacoes_possiveis[peca]["up"]:
+                    penalizacoes += 1
+                if "down" in direcoes_possiveis and peca_baixo not in combinacoes_possiveis[peca]["down"]:
+                    penalizacoes += 1
 
-        return total_imp
+        return penalizacoes
     
+   
+                
 
     def board_print(self):
         for linha in self.matriz_board:
@@ -218,12 +226,24 @@ class PipeMania(Problem):
     
 
     def roda_peca(self, peca, direcao):
-        # True -> direcao ponteiro do relogio
-        
+        # True - direcao ponteiros do relogio
         parte1, parte2 = peca[0], peca[1]
-        nova_parte2 = direcoes[parte2][direcao]
+        nova_parte2 = ""
+
+        if parte2 == "H":
+            nova_parte2 = "V"
+        elif parte2 == "V":
+            nova_parte2 = "H"
+        else:
+            if direcao == "True":
+                nova_parte2 = direcoes[(direcoes.index(parte2) + 1) % 4]
+            elif direcao == "False":
+                nova_parte2 = direcoes[(direcoes.index(parte2) - 1) % 4]
+
         nova_peca = parte1 + nova_parte2
+    
         return nova_peca
+
 
     def result(self, state: PipeManiaState, action):
         
@@ -239,35 +259,38 @@ class PipeMania(Problem):
         return new_state
 
     def goal_test(self, state: PipeManiaState):
-        state.board.board_print()
+        #state.board.board_print()
 
         ult_pos = state.board.board_size()-1
-        if (state.board.matriz_board[0][0] in ("VD", "VC", "VE", "FE", "FC")):
-            return False
-        if (state.board.matriz_board[ult_pos][0] in ("VE", "VC", "VB", "FB", "FE")):
-            return False
-        if (state.board.matriz_board[0][ult_pos] in ("VB", "VD", "VC", "FD", "FC")):
-            return False
-        if (state.board.matriz_board[ult_pos][ult_pos] in ("VB", "VD", "VE", "FD", "FB")):
-            return False
-
+        
         for coluna in range(ult_pos):  
             for linha in range(ult_pos+1):
+                peca_direita, peca_esquerda, peca_cima, peca_baixo = None, None, None, None
                 peca = state.board.matriz_board[linha][coluna]
-                peca_direita = None
-                peca_baixo = None
                 
+                if linha != 0:
+                    peca_cima = state.board.matriz_board[linha - 1][coluna]
+                if coluna != 0:
+                    peca_esquerda = state.board.matriz_board[linha][coluna - 1]
                 if linha != ult_pos:
                     peca_baixo = state.board.matriz_board[linha + 1][coluna]
                 if coluna != ult_pos:
                     peca_direita = state.board.matriz_board[linha][coluna + 1]
 
-                if peca_direita in combinacoes_imp[peca]["right"] or peca_baixo in combinacoes_imp[peca]["down"]:
-                    return False   # Quer dizer que as pecas a direita ou em baixo estao numa posicao errada
+                direcoes_possiveis = combinacoes_possiveis[peca].keys()
+                if "left" in direcoes_possiveis and peca_esquerda not in combinacoes_possiveis[peca]["left"]:
+                    return False
+                if "right" in direcoes_possiveis and peca_direita not in combinacoes_possiveis[peca]["right"]:
+                    return False
+                if "up" in direcoes_possiveis and peca_cima not in combinacoes_possiveis[peca]["up"]:
+                    return False
+                if "down" in direcoes_possiveis and peca_baixo not in combinacoes_possiveis[peca]["down"]:
+                    return False
+ 
         return True
                     
     def h(self, node: Node):
-        self.roda_pecas_cantos(node.state)
+        #self.roda_pecas_cantos(node.state)
         heuri = node.state.board.total_posicoes_imp()
         print("heuri ", heuri)
 
@@ -283,12 +306,13 @@ if __name__ == "__main__":
     board = Board.parse_instance()
     problem = PipeMania(board)
     #print("is goal? ", problem.goal_test(problem))
+    problem.board.board_print()
+    
     goal_node = greedy_search(problem)
+    goal_node.state.board.board_print()
 
     
     
-    #problem.board.board_print()
-    goal_node.state.board.board_print()
     #problem.board.board_print()
 
     """"
