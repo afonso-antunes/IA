@@ -71,10 +71,6 @@ direcoes = {
     'H': {'True': 'V', 'False': 'V'}
     }
 
-    ["C", "D", "B", "E"]
-    True == +1
-    ["V", "H"]
-
 class PipeManiaState:
     state_id = 0
 
@@ -129,7 +125,7 @@ class Board:
 
     def board_print(self):
         for linha in self.matriz_board:
-            print(" ".join(linha))
+            print("\t".join(linha))
 
     def board_size(self):
         if len(board.matriz_board) > 0:
@@ -238,12 +234,13 @@ class PipeMania(Problem):
         peca = new_state.board.matriz_board[linha][coluna]
         nova_peca = self.roda_peca(peca, direcao)
         new_state.board.matriz_board[linha][coluna] = nova_peca
-        new_state.board.board_print()
+        ###new_state.board.board_print()
     
         return new_state
 
     def goal_test(self, state: PipeManiaState):
-        #state.board.board_print()
+        state.board.board_print()
+
         ult_pos = state.board.board_size()-1
         if (state.board.matriz_board[0][0] in ("VD", "VC", "VE", "FE", "FC")):
             return False
@@ -285,11 +282,15 @@ if __name__ == "__main__":
 
     board = Board.parse_instance()
     problem = PipeMania(board)
+    #print("is goal? ", problem.goal_test(problem))
     goal_node = greedy_search(problem)
 
     
-    #print("is goal? ", problem.goal_test(problem))
+    
     #problem.board.board_print()
+    goal_node.state.board.board_print()
+    #problem.board.board_print()
+
     """"
     s0 = PipeManiaState(board)
     problem.board.board_print()

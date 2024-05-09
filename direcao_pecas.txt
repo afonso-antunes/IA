@@ -156,3 +156,11 @@ matriz[i][j]
             return False
         if (state.board.matriz_board[line-1][0] in ["VB", "LV", "FB", "BD"]):
             return False
+
+
+
+            
+    """["C", "D", "B", "E"]
+    True == +1
+    ["V", "H"]
+    """

@@ -274,6 +274,7 @@ def best_first_graph_search(problem, f, display=False):
         ###node.state.board.board_print()
         #print(node.state.board.total_posicoes_imp()) ######
         node = frontier.pop()
+
         if problem.goal_test(node.state):
             if display:
                 print(len(explored), "paths have been expanded and", len(frontier), "paths remain in the frontier")
@@ -414,7 +415,7 @@ greedy_best_first_graph_search = best_first_graph_search
 # Greedy best-first search is accomplished by specifying f(n) = h(n).
 def greedy_search(problem, h=None):
     """f(n) = h(n)"""
-    h = memoize(h or problem.h, 'h')
+    h = memoize(h or problem.h, 'h') 
     return best_first_graph_search(problem, h)
 
 def astar_search(problem, h=None, display=False):
