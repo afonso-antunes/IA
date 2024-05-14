@@ -2,7 +2,7 @@
 # Devem alterar as classes e funções neste ficheiro de acordo com as instruções do enunciado.
 # Além das funções e classes sugeridas, podem acrescentar outras que considerem pertinentes.
 
-# Grupo 00:
+# Grupo 116:
 # ist1106242 Afonso Antunes
 
 import numpy as np
@@ -20,6 +20,10 @@ from search import (
 
 direcoes = ("C", "D", "B", "E")
 
+pecas_bordas_cantos = ( ("BB", "BC", "BE", "LH", "FE", "VC", "VE"),  # coluna esquerda
+                        ("BC", "BD", "BE", "LV", "FC", "VD", "VC"),  # linha de cima
+                        ("BB", "BD", "BE", "LV", "FB", "VE", "VB"),  # linha de baixo
+                        ("BC", "BD", "BB", "LH", "FD", "VD", "VB"),) # coluna direita
 
 combinacoes_possiveis = {                   
         "BB": {
@@ -91,7 +95,7 @@ class PipeManiaState:
 class Board:
     """Representação interna de um tabuleiro de PipeMania."""
 
-    matriz_board = []
+    #matriz_board = []
 
     def __init__(self):
         self.matriz_board = []
@@ -104,8 +108,10 @@ class Board:
 
         for coluna in range(ult_pos+1):
             for linha in range(ult_pos+1):
+                num_erradas = 0
                 peca_direita, peca_esquerda, peca_cima, peca_baixo = None, None, None, None
                 peca = self.matriz_board[linha][coluna]
+                eh_canto = False
 
                 if linha != 0:
                     peca_cima = self.matriz_board[linha - 1][coluna]
@@ -116,24 +122,79 @@ class Board:
                 if coluna != ult_pos:
                     peca_direita = self.matriz_board[linha][coluna + 1]
 
+                if peca_esquerda == None or peca_direita == None or peca_baixo == None or peca_cima == None:
+                    eh_canto = True
                 direcoes_possiveis = combinacoes_possiveis[peca].keys()
                 if "left" in direcoes_possiveis and peca_esquerda not in combinacoes_possiveis[peca]["left"]:
+                    if eh_canto:
+                        penalizacoes += 100
                     penalizacoes += 1
+                    num_erradas += 1
                 if "right" in direcoes_possiveis and peca_direita not in combinacoes_possiveis[peca]["right"]:
+                    if eh_canto:
+                        penalizacoes += 100
                     penalizacoes += 1
+                    num_erradas += 1
                 if "up" in direcoes_possiveis and peca_cima not in combinacoes_possiveis[peca]["up"]:
+                    if eh_canto:
+                        penalizacoes += 100
                     penalizacoes += 1
+                    num_erradas += 1
                 if "down" in direcoes_possiveis and peca_baixo not in combinacoes_possiveis[peca]["down"]:
+                    if eh_canto:
+                        penalizacoes += 100
                     penalizacoes += 1
+                    num_erradas += 1
 
         return penalizacoes
     
    
+    def penalizacao_bordas_cantos(self):
+        
+        ult_pos = self.board_size()-1
+        penalizacao = 0
+
+        for i in range(ult_pos+1):
+            pecaBordaEsq = self.matriz_board[i][0]
+            pecaBordaCima = self.matriz_board[0][i]
+            pecaBordaBaixo = self.matriz_board[ult_pos][i]
+            pecaBordaDir = self.matriz_board[i][ult_pos]
+
+            if i == 0:
+                if pecaBordaEsq in pecas_bordas_cantos[0] or pecaBordaEsq in pecas_bordas_cantos[1]:
+                    penalizacao += 100
+            
+            elif i == ult_pos:
+                if pecaBordaEsq in pecas_bordas_cantos[0] or pecaBordaEsq in pecas_bordas_cantos[2]:
+                    penalizacao += 100
                 
+                if pecaBordaCima in pecas_bordas_cantos[1] or pecaBordaCima in pecas_bordas_cantos[3]:
+                    penalizacao += 100
+                
+                if pecaBordaBaixo in pecas_bordas_cantos[2] or pecaBordaBaixo in pecas_bordas_cantos[3]:
+                    penalizacao += 100
+            
+            else:
+                if pecaBordaEsq in pecas_bordas_cantos[0]:
+                    penalizacao += 100
+                
+                if pecaBordaCima in pecas_bordas_cantos[1]:
+                    penalizacao += 100
+                
+                if pecaBordaBaixo in pecas_bordas_cantos[2]:
+                    penalizacao += 100
+
+                if pecaBordaDir in pecas_bordas_cantos[3]:
+                    penalizacao += 100
+
+        return penalizacao 
+
 
     def board_print(self):
+        board_lines = []
         for linha in self.matriz_board:
-            print("\t".join(linha))
+            board_lines.append("\t".join(linha))
+        return "\n".join(board_lines)
 
     def board_size(self):
         if len(board.matriz_board) > 0:
@@ -200,46 +261,54 @@ class PipeMania(Problem):
         self.initial = PipeManiaState(board)
 
     def actions(self, state: PipeManiaState):
-        for linha in range(state.board.board_size()):                # actions pode limitar as pecas
-            for coluna in range(state.board.board_size()):
-                yield (linha, coluna, 'True')
-                yield (linha, coluna, 'False')
+        ult_pos = state.board.board_size()-1
+        for linha in range(ult_pos+1):                
+            for coluna in range(ult_pos+1):
+                peca = state.board.matriz_board[linha][coluna]
+                if peca[0] == "L":
+                    yield (linha, coluna, "RODA_HORARIO")
+            
+                if peca == "VC" and coluna == 0:
+                    yield (linha, coluna, "RODA_HORARIO")
+                    yield (linha, coluna, "RODA_180")
+                elif peca == "VE" and coluna == 0:
+                    yield (linha, coluna, "RODA_180")
+                    yield (linha, coluna, "RODA_ANTIHORARIO")
+                elif peca == "VD" and linha == 0:
+                    yield (linha, coluna, "RODA_HORARIO")
+                    yield (linha, coluna, "RODA_180")
+                elif peca == "VC" and linha == 0:
+                    yield (linha, coluna, "RODA_ANTIHORARIO")
+                    yield (linha, coluna, "RODA_180")
+                elif peca == "VD" and coluna == ult_pos:
+                    yield (linha, coluna, "RODA_ANTIHORARIO")
+                    yield (linha, coluna, "RODA_180")
+                elif peca == "VB" and coluna == ult_pos:
+                    yield (linha, coluna, "RODA_HORARIO")
+                    yield (linha, coluna, "RODA_180")
+                
+                else:
+                    yield (linha, coluna, "RODA_HORARIO")
+                    yield (linha, coluna, "RODA_ANTIHORARIO")
+                    yield (linha, coluna, "RODA_180")
 
-        
-    
-    def roda_pecas_cantos(self, state):
-        ult_lin_col = state.board.board_size()-1
-
-        if state.board.get_value(ult_lin_col, ult_lin_col)[0] == 'V':    # canto inf dir
-            state.board.matriz_board[ult_lin_col][ult_lin_col] = 'VC'
-             
-        if state.board.get_value(0, 0)[0] == 'V': # canto sup esq
-            state.board.matriz_board[0][0] = 'VB'
-    
-        if state.board.get_value(0, ult_lin_col)[0] == 'V': # canto sup dir
-            state.board.matriz_board[0][ult_lin_col] =  'VE'
-        
-        if state.board.get_value(ult_lin_col, 0)[0] == 'V': # canto  inf esq
-            state.board.matriz_board[ult_lin_col][0] =  'VD'
-
-        return 
-    
 
     def roda_peca(self, peca, direcao):
         # True - direcao ponteiros do relogio
         parte1, parte2 = peca[0], peca[1]
         nova_parte2 = ""
 
-        if parte2 == "H":
-            nova_parte2 = "V"
-        elif parte2 == "V":
-            nova_parte2 = "H"
+        if parte2 in 'HV':
+            nova_parte2 = 'V' if parte2 == 'H' else 'H'
+        
         else:
-            if direcao == "True":
-                nova_parte2 = direcoes[(direcoes.index(parte2) + 1) % 4]
-            elif direcao == "False":
-                nova_parte2 = direcoes[(direcoes.index(parte2) - 1) % 4]
-
+            idx = direcoes.index(parte2)
+            if direcao == "RODA_HORARIO":
+                nova_parte2 = direcoes[(idx + 1) % 4]
+            elif direcao == "RODA_ANTIHORARIO":
+                nova_parte2 = direcoes[(idx - 1) % 4]
+            elif direcao == "RODA_180":
+                nova_parte2 = direcoes[(idx + 2) % 4]
         nova_peca = parte1 + nova_parte2
     
         return nova_peca
@@ -249,21 +318,15 @@ class PipeMania(Problem):
         
         new_state = state.copy_state()  
         linha, coluna, direcao_bool = action  
-        
-        direcao = 'True' if direcao_bool else 'False'
         peca = new_state.board.matriz_board[linha][coluna]
-        nova_peca = self.roda_peca(peca, direcao)
-        new_state.board.matriz_board[linha][coluna] = nova_peca
-        ###new_state.board.board_print()
-    
+        nova_peca = self.roda_peca(peca, direcao_bool)
+        new_state.board.matriz_board[linha][coluna] = nova_peca    
         return new_state
 
     def goal_test(self, state: PipeManiaState):
-        #state.board.board_print()
-
         ult_pos = state.board.board_size()-1
         
-        for coluna in range(ult_pos):  
+        for coluna in range(ult_pos+1):  
             for linha in range(ult_pos+1):
                 peca_direita, peca_esquerda, peca_cima, peca_baixo = None, None, None, None
                 peca = state.board.matriz_board[linha][coluna]
@@ -290,11 +353,15 @@ class PipeMania(Problem):
         return True
                     
     def h(self, node: Node):
-        #self.roda_pecas_cantos(node.state)
-        heuri = node.state.board.total_posicoes_imp()
-        print("heuri ", heuri)
-
-        return heuri
+        
+        erradas = node.state.board.total_posicoes_imp()
+        border_error = node.state.board.penalizacao_bordas_cantos()
+        print(node.state.board.board_print(), erradas, border_error)
+        print("\n")
+        #print("heuri ", heuri , " - erros bordas ", border_error)
+       
+        #print(heuri)
+        return erradas + border_error
 
     # TODO: outros metodos da classe
 
@@ -306,23 +373,14 @@ if __name__ == "__main__":
     board = Board.parse_instance()
     problem = PipeMania(board)
     #print("is goal? ", problem.goal_test(problem))
-    problem.board.board_print()
-    
-    goal_node = greedy_search(problem)
-    goal_node.state.board.board_print()
-
-    
-    
     #problem.board.board_print()
-
-    """"
-    s0 = PipeManiaState(board)
-    problem.board.board_print()
-    print("Is goal?", problem.goal_test(s0))
-    """
+    
+    goal_node = astar_search(problem)
+    print("Is goal?", problem.goal_test(goal_node.state))
+    print("Solution:\n", goal_node.state.board.board_print(), sep="")
+    
 
     
-    # Usar uma técnica de procura para resolver a instância,
-    # Retirar a solução a partir do nó resultante,
-    # Imprimir para o standard output no formato indicado.
+    #print(problem.board.penalizacao_bordas_cantos())
+    #problem.board.board_print()
     pass
