@@ -105,10 +105,10 @@ class Board:
 
         penalizacoes = 0
         ult_pos = b_size - 1
+        penalizacoes_bordas = 0
 
         for coluna in range(ult_pos+1):
             for linha in range(ult_pos+1):
-                num_erradas = 0
                 peca_direita, peca_esquerda, peca_cima, peca_baixo = None, None, None, None
                 peca = self.matriz_board[linha][coluna]
                 eh_canto = False
@@ -126,19 +126,27 @@ class Board:
                     eh_canto = True
                 direcoes_possiveis = combinacoes_possiveis[peca].keys()
                 if "left" in direcoes_possiveis and peca_esquerda not in combinacoes_possiveis[peca]["left"]:
-                    penalizacoes += 1
-                    num_erradas += 1
+                    if eh_canto:
+                        penalizacoes_bordas += 4
+                    else:
+                        penalizacoes += 1
                 if "right" in direcoes_possiveis and peca_direita not in combinacoes_possiveis[peca]["right"]:
-                    penalizacoes += 1
-                    num_erradas += 1
+                    if eh_canto:
+                        penalizacoes_bordas += 4
+                    else:
+                        penalizacoes += 1
                 if "up" in direcoes_possiveis and peca_cima not in combinacoes_possiveis[peca]["up"]:
-                    penalizacoes += 2
-                    num_erradas += 1
+                    if eh_canto:
+                        penalizacoes_bordas += 4
+                    else:
+                        penalizacoes += 1
                 if "down" in direcoes_possiveis and peca_baixo not in combinacoes_possiveis[peca]["down"]:
-                    penalizacoes += 1
-                    num_erradas += 1
+                    if eh_canto:
+                        penalizacoes_bordas += 4
+                    else:
+                        penalizacoes += 1
 
-        return penalizacoes
+        return penalizacoes, penalizacoes_bordas
     
    
     def penalizacao_bordas_cantos(self):
@@ -230,16 +238,52 @@ class Board:
     @staticmethod
     def parse_instance():
         board = Board()
-        linha = 0
         linha_atual = stdin.readline().split()
+        size = len(linha_atual) - 1
+        linha_matriz = 0
 
         while linha_atual:
             board.matriz_board.append([])
+            coluna = 0
 
             for peca in linha_atual:
-                board.matriz_board[linha].append(peca)
-            
-            linha += 1
+                if coluna == 0 and linha_matriz == 0:
+                    if peca[0] == "V":
+                        peca = "VB"
+                elif coluna == 0 and linha_matriz == size:
+                    if peca[0] == "V":
+                        peca = "VD"
+                elif coluna == size and linha_matriz == 0:
+                    if peca[0] == "V":
+                        peca = "VE"
+                elif coluna == size and linha_matriz == size:
+                    if peca[0] == "V":
+                        peca = "VC"
+                elif coluna == 0:
+                    if peca[0] == "B":
+                        peca == "BD"
+                    elif peca[0] == "L":
+                        peca = "LV"
+                elif linha_matriz == 0:
+                    if peca[0] == "B":
+                        peca = "BB"
+                    elif peca[0] == "L":
+                        peca = "LH" 
+                elif coluna == size:
+                    if peca[0] == "B":
+                        peca = "BE"
+                    elif peca[0] == "L":
+                        peca = "LV"
+                elif linha_matriz == size:
+                    if peca[0] == "B":
+                        peca = "BC"
+                    elif peca[0] == "L":
+                        peca = "LH"    
+
+                board.matriz_board[linha_matriz].append(peca)
+                coluna += 1
+            linha_matriz += 1
+
             linha_atual = stdin.readline().split()
 
 
@@ -305,7 +349,9 @@ class PipeMania(Problem):
     
         return nova_peca
 
+    
 
+        
     def result(self, state: PipeManiaState, action):
         
         new_state = state.copy_state()  
@@ -346,14 +392,14 @@ class PipeMania(Problem):
                     
     def h(self, node: Node):
         
-        erradas = node.state.board.total_posicoes_imp()
+        erradas, conexoes_erradas_bordas = node.state.board.total_posicoes_imp()
         border_error = node.state.board.penalizacao_bordas_cantos()
-        print(node.state.board.board_print(), erradas, border_error)
-        print("\n")
+        """print(node.state.board.board_print(), erradas, border_error)
+        print("\n")"""
         #print("heuri ", heuri , " - erros bordas ", border_error)
        
         #print(heuri)
-        return erradas + border_error
+        return erradas + conexoes_erradas_bordas + border_error
 
     # TODO: outros metodos da classe
 
