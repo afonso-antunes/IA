@@ -162,30 +162,30 @@ class Board:
 
             if i == 0:
                 if pecaBordaEsq in pecas_bordas_cantos[0] or pecaBordaEsq in pecas_bordas_cantos[1]:
-                    penalizacao += 100
+                    penalizacao += 50
             
             elif i == ult_pos:
                 if pecaBordaEsq in pecas_bordas_cantos[0] or pecaBordaEsq in pecas_bordas_cantos[2]:
-                    penalizacao += 100
+                    penalizacao += 50
                 
                 if pecaBordaCima in pecas_bordas_cantos[1] or pecaBordaCima in pecas_bordas_cantos[3]:
-                    penalizacao += 100
+                    penalizacao += 50
                 
                 if pecaBordaBaixo in pecas_bordas_cantos[2] or pecaBordaBaixo in pecas_bordas_cantos[3]:
-                    penalizacao += 100
+                    penalizacao += 50
             
             else:
                 if pecaBordaEsq in pecas_bordas_cantos[0]:
-                    penalizacao += 100
+                    penalizacao += 50
                 
                 if pecaBordaCima in pecas_bordas_cantos[1]:
-                    penalizacao += 100
+                    penalizacao += 50
                 
                 if pecaBordaBaixo in pecas_bordas_cantos[2]:
-                    penalizacao += 100
+                    penalizacao += 50
 
                 if pecaBordaDir in pecas_bordas_cantos[3]:
-                    penalizacao += 100
+                    penalizacao += 50
 
         return penalizacao 
 
@@ -356,8 +356,8 @@ class PipeMania(Problem):
         
         erradas = node.state.board.total_posicoes_imp()
         border_error = node.state.board.penalizacao_bordas_cantos()
-        print(node.state.board.board_print(), erradas, border_error)
-        print("\n")
+        """print(node.state.board.board_print(), erradas, border_error)
+        print("\n")"""
         #print("heuri ", heuri , " - erros bordas ", border_error)
        
         #print(heuri)
@@ -376,8 +376,7 @@ if __name__ == "__main__":
     #problem.board.board_print()
     
     goal_node = astar_search(problem)
-    print("Is goal?", problem.goal_test(goal_node.state))
-    print("Solution:\n", goal_node.state.board.board_print(), sep="")
+    print(goal_node.state.board.board_print(), sep="")
     
 
     
