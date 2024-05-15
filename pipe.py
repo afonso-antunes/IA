@@ -104,7 +104,7 @@ class Board:
     def total_posicoes_imp(self):
 
         penalizacoes = 0
-        ult_pos = self.board_size()-1
+        ult_pos = b_size - 1
 
         for coluna in range(ult_pos+1):
             for linha in range(ult_pos+1):
@@ -126,23 +126,15 @@ class Board:
                     eh_canto = True
                 direcoes_possiveis = combinacoes_possiveis[peca].keys()
                 if "left" in direcoes_possiveis and peca_esquerda not in combinacoes_possiveis[peca]["left"]:
-                    if eh_canto:
-                        penalizacoes += 100
                     penalizacoes += 1
                     num_erradas += 1
                 if "right" in direcoes_possiveis and peca_direita not in combinacoes_possiveis[peca]["right"]:
-                    if eh_canto:
-                        penalizacoes += 100
                     penalizacoes += 1
                     num_erradas += 1
                 if "up" in direcoes_possiveis and peca_cima not in combinacoes_possiveis[peca]["up"]:
-                    if eh_canto:
-                        penalizacoes += 100
-                    penalizacoes += 1
+                    penalizacoes += 2
                     num_erradas += 1
                 if "down" in direcoes_possiveis and peca_baixo not in combinacoes_possiveis[peca]["down"]:
-                    if eh_canto:
-                        penalizacoes += 100
                     penalizacoes += 1
                     num_erradas += 1
 
@@ -151,7 +143,7 @@ class Board:
    
     def penalizacao_bordas_cantos(self):
         
-        ult_pos = self.board_size()-1
+        ult_pos = b_size - 1
         penalizacao = 0
 
         for i in range(ult_pos+1):
@@ -162,30 +154,30 @@ class Board:
 
             if i == 0:
                 if pecaBordaEsq in pecas_bordas_cantos[0] or pecaBordaEsq in pecas_bordas_cantos[1]:
-                    penalizacao += 50
+                    penalizacao += 3
             
             elif i == ult_pos:
                 if pecaBordaEsq in pecas_bordas_cantos[0] or pecaBordaEsq in pecas_bordas_cantos[2]:
-                    penalizacao += 50
+                    penalizacao += 3
                 
                 if pecaBordaCima in pecas_bordas_cantos[1] or pecaBordaCima in pecas_bordas_cantos[3]:
-                    penalizacao += 50
+                    penalizacao += 3
                 
                 if pecaBordaBaixo in pecas_bordas_cantos[2] or pecaBordaBaixo in pecas_bordas_cantos[3]:
-                    penalizacao += 50
+                    penalizacao += 3
             
             else:
                 if pecaBordaEsq in pecas_bordas_cantos[0]:
-                    penalizacao += 50
+                    penalizacao += 3
                 
                 if pecaBordaCima in pecas_bordas_cantos[1]:
-                    penalizacao += 50
+                    penalizacao += 3
                 
                 if pecaBordaBaixo in pecas_bordas_cantos[2]:
-                    penalizacao += 50
+                    penalizacao += 3
 
                 if pecaBordaDir in pecas_bordas_cantos[3]:
-                    penalizacao += 50
+                    penalizacao += 3
 
         return penalizacao 
 
@@ -261,7 +253,7 @@ class PipeMania(Problem):
         self.initial = PipeManiaState(board)
 
     def actions(self, state: PipeManiaState):
-        ult_pos = state.board.board_size()-1
+        ult_pos = b_size - 1
         for linha in range(ult_pos+1):                
             for coluna in range(ult_pos+1):
                 peca = state.board.matriz_board[linha][coluna]
@@ -324,7 +316,7 @@ class PipeMania(Problem):
         return new_state
 
     def goal_test(self, state: PipeManiaState):
-        ult_pos = state.board.board_size()-1
+        ult_pos = b_size - 1
         
         for coluna in range(ult_pos+1):  
             for linha in range(ult_pos+1):
@@ -356,14 +348,15 @@ class PipeMania(Problem):
         
         erradas = node.state.board.total_posicoes_imp()
         border_error = node.state.board.penalizacao_bordas_cantos()
-        """print(node.state.board.board_print(), erradas, border_error)
-        print("\n")"""
+        print(node.state.board.board_print(), erradas, border_error)
+        print("\n")
         #print("heuri ", heuri , " - erros bordas ", border_error)
        
         #print(heuri)
         return erradas + border_error
 
     # TODO: outros metodos da classe
+
 
 
 if __name__ == "__main__":
@@ -374,8 +367,8 @@ if __name__ == "__main__":
     problem = PipeMania(board)
     #print("is goal? ", problem.goal_test(problem))
     #problem.board.board_print()
-    
-    goal_node = astar_search(problem)
+    b_size = board.board_size()
+    goal_node = recursive_best_first_search(problem)
     print(goal_node.state.board.board_print(), sep="")
     
 
