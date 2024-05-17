@@ -25,6 +25,12 @@ pecas_bordas_cantos = ( ("BB", "BC", "BE", "LH", "FE", "VC", "VE"),  # coluna es
                         ("BB", "BD", "BE", "LV", "FB", "VE", "VB"),  # linha de baixo
                         ("BC", "BD", "BB", "LH", "FD", "VD", "VB"),) # coluna direita
 
+coordenadas_fechadas = []
+
+RODA_HORARIO = 1
+RODA_ANTIHORARIO = 2
+RODA_180 = 3
+
 combinacoes_possiveis = {                   
         "BB": {
             "left": ["BB", "BC", "BD", "FD", "LH", "VB", "VD"], 
@@ -105,13 +111,18 @@ class Board:
 
         penalizacoes = 0
         ult_pos = b_size - 1
-        penalizacoes_bordas = 0
+        penalizacoes_bordas, penalizacoes_fecho, penalizacoes_trinco, penalizacoes_reta, penalizacoes_v = 0, 0, 0, 0, 0
 
         for coluna in range(ult_pos+1):
             for linha in range(ult_pos+1):
                 peca_direita, peca_esquerda, peca_cima, peca_baixo = None, None, None, None
                 peca = self.matriz_board[linha][coluna]
-                eh_canto = False
+                eh_canto, eh_fecho, eh_trinco, eh_reta, eh_v = False, False, False, False, False
+
+                if peca[0] == "F": eh_fecho = True
+                elif peca[0] == "B": eh_trinco = True
+                elif peca[0] == "L": eh_reta = True
+                elif peca[0] == "V": eh_v = True
 
                 if linha != 0:
                     peca_cima = self.matriz_board[linha - 1][coluna]
@@ -126,27 +137,51 @@ class Board:
                     eh_canto = True
                 direcoes_possiveis = combinacoes_possiveis[peca].keys()
                 if "left" in direcoes_possiveis and peca_esquerda not in combinacoes_possiveis[peca]["left"]:
-                    if eh_canto:
-                        penalizacoes_bordas += 4
+
+                    if eh_fecho and peca_esquerda != None and peca_esquerda[0] == "F": penalizacoes_fecho += 2
+                    if eh_trinco and peca_esquerda != None: penalizacoes_trinco += 1
+                    if eh_reta and peca_esquerda != None: penalizacoes_reta += 1
+                    if eh_v and peca_esquerda != None: penalizacoes_v += 1
+                    if eh_canto: penalizacoes_bordas += 1
+                    
                     else:
+                        
                         penalizacoes += 1
                 if "right" in direcoes_possiveis and peca_direita not in combinacoes_possiveis[peca]["right"]:
-                    if eh_canto:
-                        penalizacoes_bordas += 4
+
+                    if eh_fecho and peca_direita != None and peca_direita[0] == "F": penalizacoes_fecho += 2
+                    if eh_trinco and peca_direita != None: penalizacoes_trinco += 1
+                    if eh_reta and peca_direita != None: penalizacoes_reta += 1
+                    if eh_v and peca_direita != None: penalizacoes_v += 1
+                    if eh_canto: penalizacoes_bordas += 1
+                    
                     else:
+                        
                         penalizacoes += 1
                 if "up" in direcoes_possiveis and peca_cima not in combinacoes_possiveis[peca]["up"]:
-                    if eh_canto:
-                        penalizacoes_bordas += 4
+
+                    if eh_fecho and peca_cima != None and peca_cima[0] == "F": penalizacoes_fecho += 2
+                    if eh_trinco and peca_cima != None: penalizacoes_trinco += 1
+                    if eh_reta and peca_cima != None: penalizacoes_reta += 1
+                    if eh_v and peca_cima != None: penalizacoes_v += 1
+                    if eh_canto: penalizacoes_bordas += 1
+                    
                     else:
+                        
                         penalizacoes += 1
                 if "down" in direcoes_possiveis and peca_baixo not in combinacoes_possiveis[peca]["down"]:
-                    if eh_canto:
-                        penalizacoes_bordas += 4
+
+                    if eh_fecho and peca_baixo != None and peca_baixo[0] == "F": penalizacoes_fecho += 2
+                    if eh_trinco and peca_baixo != None: penalizacoes_trinco += 1
+                    if eh_reta and peca_baixo != None: penalizacoes_reta += 1
+                    if eh_v and peca_baixo != None: penalizacoes_v += 1
+                    if eh_canto: penalizacoes_bordas += 1
+                    
                     else:
+                        
                         penalizacoes += 1
 
-        return penalizacoes, penalizacoes_bordas
+        return penalizacoes , penalizacoes_bordas, penalizacoes_fecho, penalizacoes_trinco, penalizacoes_reta, penalizacoes_v
     
    
     def penalizacao_bordas_cantos(self):
@@ -250,35 +285,47 @@ class Board:
                 if coluna == 0 and linha_matriz == 0:
                     if peca[0] == "V":
                         peca = "VB"
+                        coordenadas_fechadas.append((linha_matriz, coluna))
                 elif coluna == 0 and linha_matriz == size:
                     if peca[0] == "V":
                         peca = "VD"
+                        coordenadas_fechadas.append((linha_matriz, coluna))
                 elif coluna == size and linha_matriz == 0:
                     if peca[0] == "V":
                         peca = "VE"
+                        coordenadas_fechadas.append((linha_matriz, coluna))
                 elif coluna == size and linha_matriz == size:
                     if peca[0] == "V":
                         peca = "VC"
+                        coordenadas_fechadas.append((linha_matriz, coluna))
                 elif coluna == 0:
                     if peca[0] == "B":
-                        peca == "BD"
+                        peca = "BD"
+                        coordenadas_fechadas.append((linha_matriz, coluna))
                     elif peca[0] == "L":
                         peca = "LV"
+                        coordenadas_fechadas.append((linha_matriz, coluna))
                 elif linha_matriz == 0:
                     if peca[0] == "B":
                         peca = "BB"
+                        coordenadas_fechadas.append((linha_matriz, coluna))
                     elif peca[0] == "L":
                         peca = "LH" 
+                        coordenadas_fechadas.append((linha_matriz, coluna))
                 elif coluna == size:
                     if peca[0] == "B":
                         peca = "BE"
+                        coordenadas_fechadas.append((linha_matriz, coluna))
                     elif peca[0] == "L":
                         peca = "LV"
+                        coordenadas_fechadas.append((linha_matriz, coluna))
                 elif linha_matriz == size:
                     if peca[0] == "B":
                         peca = "BC"
+                        coordenadas_fechadas.append((linha_matriz, coluna))
                     elif peca[0] == "L":
-                        peca = "LH"    
+                        peca = "LH"
+                        coordenadas_fechadas.append((linha_matriz, coluna))    
 
                 board.matriz_board[linha_matriz].append(peca)
                 coluna += 1
@@ -300,33 +347,62 @@ class PipeMania(Problem):
         ult_pos = b_size - 1
         for linha in range(ult_pos+1):                
             for coluna in range(ult_pos+1):
+                if (linha, coluna) in coordenadas_fechadas: continue
+                
                 peca = state.board.matriz_board[linha][coluna]
+                
+                
                 if peca[0] == "L":
-                    yield (linha, coluna, "RODA_HORARIO")
+                    yield (linha, coluna, RODA_HORARIO)
             
                 if peca == "VC" and coluna == 0:
-                    yield (linha, coluna, "RODA_HORARIO")
-                    yield (linha, coluna, "RODA_180")
+                    yield (linha, coluna, RODA_HORARIO)
+                    yield (linha, coluna, RODA_180)
                 elif peca == "VE" and coluna == 0:
-                    yield (linha, coluna, "RODA_180")
-                    yield (linha, coluna, "RODA_ANTIHORARIO")
-                elif peca == "VD" and linha == 0:
-                    yield (linha, coluna, "RODA_HORARIO")
-                    yield (linha, coluna, "RODA_180")
-                elif peca == "VC" and linha == 0:
-                    yield (linha, coluna, "RODA_ANTIHORARIO")
-                    yield (linha, coluna, "RODA_180")
-                elif peca == "VD" and coluna == ult_pos:
-                    yield (linha, coluna, "RODA_ANTIHORARIO")
-                    yield (linha, coluna, "RODA_180")
-                elif peca == "VB" and coluna == ult_pos:
-                    yield (linha, coluna, "RODA_HORARIO")
-                    yield (linha, coluna, "RODA_180")
+                    yield (linha, coluna, RODA_180)
+                    yield (linha, coluna, RODA_ANTIHORARIO)
+                elif peca == "VD" and coluna == 0:
+                    yield (linha, coluna, RODA_HORARIO)
+                elif peca == "VB" and coluna == 0:
+                    yield (linha, coluna, RODA_ANTIHORARIO)
                 
+                elif peca == "VD" and linha == 0:
+                    yield (linha, coluna, RODA_HORARIO)
+                    yield (linha, coluna, RODA_180)
+                elif peca == "VC" and linha == 0:
+                    yield (linha, coluna, RODA_ANTIHORARIO)
+                    yield (linha, coluna, RODA_180)
+                elif peca == "VB" and linha == 0:
+                    yield (linha, coluna, RODA_HORARIO)
+                elif peca == "VC" and linha == 0:
+                    yield (linha, coluna, RODA_ANTIHORARIO)
+
+                elif peca == "VD" and coluna == ult_pos:
+                    yield (linha, coluna, RODA_ANTIHORARIO)
+                    yield (linha, coluna, RODA_180)
+                elif peca == "VB" and coluna == ult_pos:
+                    yield (linha, coluna, RODA_HORARIO)
+                    yield (linha, coluna, RODA_180)
+                elif peca == "VE" and coluna == ult_pos:
+                    yield (linha, coluna, RODA_HORARIO)
+                elif peca == "VC" and coluna == ult_pos:
+                    yield (linha, coluna, RODA_ANTIHORARIO)
+
+                elif peca == "VE" and linha == ult_pos:
+                    yield (linha, coluna, RODA_180)
+                    yield (linha, coluna, RODA_HORARIO)
+                elif peca == "VB" and linha == ult_pos:
+                    yield (linha, coluna, RODA_180)
+                    yield (linha, coluna, RODA_ANTIHORARIO)
+                elif peca == "VC" and linha == ult_pos:
+                    yield (linha, coluna, RODA_HORARIO)
+                elif peca == "VD" and linha == ult_pos:
+                    yield (linha, coluna, RODA_ANTIHORARIO)
+
                 else:
-                    yield (linha, coluna, "RODA_HORARIO")
-                    yield (linha, coluna, "RODA_ANTIHORARIO")
-                    yield (linha, coluna, "RODA_180")
+                    yield (linha, coluna, RODA_HORARIO)
+                    yield (linha, coluna, RODA_ANTIHORARIO)
+                    yield (linha, coluna, RODA_180)
 
 
     def roda_peca(self, peca, direcao):
@@ -339,11 +415,11 @@ class PipeMania(Problem):
         
         else:
             idx = direcoes.index(parte2)
-            if direcao == "RODA_HORARIO":
+            if direcao == RODA_HORARIO:
                 nova_parte2 = direcoes[(idx + 1) % 4]
-            elif direcao == "RODA_ANTIHORARIO":
+            elif direcao == RODA_ANTIHORARIO:
                 nova_parte2 = direcoes[(idx - 1) % 4]
-            elif direcao == "RODA_180":
+            elif direcao == RODA_180:
                 nova_parte2 = direcoes[(idx + 2) % 4]
         nova_peca = parte1 + nova_parte2
     
@@ -392,14 +468,13 @@ class PipeMania(Problem):
                     
     def h(self, node: Node):
         
-        erradas, conexoes_erradas_bordas = node.state.board.total_posicoes_imp()
+        erradas ,erros_borda,  erros_fecho ,  erros_trinco ,  erros_reta ,  erros_v = node.state.board.total_posicoes_imp()
         border_error = node.state.board.penalizacao_bordas_cantos()
-        """print(node.state.board.board_print(), erradas, border_error)
-        print("\n")"""
-        #print("heuri ", heuri , " - erros bordas ", border_error)
        
+        #print("heuri ", heuri , " - erros bordas ", border_error)
+        #print(pen_fechos)
         #print(heuri)
-        return erradas + conexoes_erradas_bordas + border_error
+        return erradas  + border_error + erros_borda + erros_fecho + erros_trinco + erros_reta + erros_v
 
     # TODO: outros metodos da classe
 

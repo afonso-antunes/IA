@@ -94,24 +94,7 @@ matriz[i][j]
 
 
 
-        # Função para obter as direções disponíveis para uma peça específica
-        def obter_direcoes_disponiveis(peca):
-        direcoes = []
-        if peca in combinacoes_possiveis:
-                combinacoes = combinacoes_possiveis[peca]
-                if "left" in combinacoes:
-                direcoes.append("left")
-                if "right" in combinacoes:
-                direcoes.append("right")
-                if "up" in combinacoes:
-                direcoes.append("up")
-                if "down" in combinacoes:
-                direcoes.append("down")
-        return direcoes
-
-        # Exemplo de uso da função
-        direcoes_VE = obter_direcoes_disponiveis("VE")
-        print("Direções disponíveis para a peça 'VE':", direcoes_VE)
+    
 
         combinacoes_impossiveis = {
         "BB": { "right": ["BD", "FB", "FC", "FD", "LV", "VB", "VD"],
@@ -146,86 +129,74 @@ matriz[i][j]
 
 
 
-        line = 0
-        col = 0
-        while line < state.board.board_size():
-            if (state.board.matriz_board[line][0] in ["BB", "BC", "BE", "FE", "LH", "VC", "VE"]):
-                return False
-            line +=1
-        if (state.board.matriz_board[0][0] in ["VD", "LV", "FC", "BD"]):
-            return False
-        if (state.board.matriz_board[line-1][0] in ["VB", "LV", "FB", "BD"]):
-            return False
-
-
-
-            
-    """["C", "D", "B", "E"]
-    True == +1
-    ["V", "H"]
-    """
-
-
-
-
-    pecas_bordas_cantos = ( ("BB", "BC", "BE", "LH", "FE", "VC", "VE"),  # coluna esquerda
-                        ("BC", "BD", "BE", "LV", "FC", "VD", "VC"),  # linha de cima
-                        ("BB", "BD", "BE", "LV", "FB", "VE", "VB"),  # linha de baixo
-                        ("BC", "BD", "BB", "LH", "FD", "VD", "VB"),) # coluna direita
-
-
-
-
- def penalizacao_bordas_cantos(self):
-        ult_pos = self.board_size()-1
-        penalizacao = 0
-        for linha in enumerate(ult_pos):
-            peca = self.matriz_board[linha][0]
-
-            if linha == 0:
-                if peca in pecas_bordas_cantos[0] or peca in pecas_bordas_cantos[1]:
-                    penalizacao += 100
-            
-            elif linha == ult_pos:
-                if peca in pecas_bordas_cantos[0] or peca in pecas_bordas_cantos[2]:
-                    penalizacao += 100
-            
-            else:
-                if peca in pecas_bordas_cantos[0]:
-                    penalizacao += 50
-
-
-
-def total_posicoes_imp(self):
-
-        total_imp = 0
-        ult_pos = self.board_size()-1
-        for coluna in range(ult_pos+1):  
-            for linha in range(ult_pos+1):
-                peca = self.matriz_board[linha][coluna]
-                peca_direita = None
-                peca_baixo = None
-                
+       
+                peca_direita, peca_esquerda, peca_cima, peca_baixo = None, None, None, None
+                if linha != 0:
+                    peca_cima = state.board.matriz_board[linha - 1][coluna]
+                if coluna != 0:
+                    peca_esquerda = state.board.matriz_board[linha][coluna - 1]
                 if linha != ult_pos:
-                    peca_baixo = self.matriz_board[linha + 1][coluna]
+                    peca_baixo = state.board.matriz_board[linha + 1][coluna]
                 if coluna != ult_pos:
-                    peca_direita = self.matriz_board[linha][coluna + 1]
+                    peca_direita = state.board.matriz_board[linha][coluna + 1]
+                
+                acoes_cima = set()
+                acoes_baixo = set()
+                acoes_direita = set()
+                acoes_esquerda = set()
 
-                if peca_direita in combinacoes_imp[peca]["right"]:
-                    total_imp += 1
-                if peca_baixo in combinacoes_imp[peca]["down"]:
-                    total_imp += 1   
-
-        return total_imp
+                if peca_cima != None and peca_cima[0] == "F" and peca[0] == "F":
+                    if peca[1] == "B":
+                        acoes_cima = {RODA_ANTIHORARIO, RODA_HORARIO}
+                        
+                    elif peca[1] == "D":
+                        acoes_cima = {RODA_HORARIO, RODA_180}
+                       
+                    elif peca[1] == "E":
+                        acoes_cima = {RODA_ANTIHORARIO, RODA_180}
+                        
+                if peca_baixo != None and peca_baixo[0] == "F" and peca[0] == "F":
+                    if peca[1] == "C":
+                        acoes_baixo = {RODA_ANTIHORARIO, RODA_HORARIO}
+                       
+                    elif peca[1] == "D":
+                        acoes_baixo = {RODA_ANTIHORARIO, RODA_180}
+                        
+                    elif peca[1] == "E":
+                        acoes_baixo = {RODA_HORARIO, RODA_180}
+                        
+                if peca_direita != None and peca_direita[0] == "F" and peca[0] == "F":
+                    if peca[1] == "C":
+                        acoes_direita = {RODA_180, RODA_ANTIHORARIO}
+                        
+                    elif peca[1] == "B":
+                        acoes_direita = {RODA_180, RODA_HORARIO}
+                        
+                    elif peca[1] == "E":
+                        acoes_direita = {RODA_ANTIHORARIO, RODA_HORARIO}
+                        
+                if peca_esquerda != None and peca_esquerda[0] == "F" and peca[0] == "F":
+                    if peca[1] == "C":
+                        acoes_esquerda = {RODA_180, RODA_HORARIO}
+                       
+                    elif peca[1] == "B":
+                        acoes_esquerda = {RODA_180, RODA_ANTIHORARIO}
+                        
+                    elif peca[1] == "D":
+                        acoes_esquerda = {RODA_ANTIHORARIO, RODA_HORARIO}
+                acoes_comuns = acoes_cima & acoes_baixo & acoes_direita & acoes_esquerda
+                if peca[0] == "F":
+                    for acao in acoes_comuns:
+                        yield (linha, coluna, acao)
     
 
 
+   
 
-    direcoes = {
-    'C': {'True': 'D', 'False': 'E'},
-    'D': {'True': 'B', 'False': 'C'},
-    'B': {'True': 'E', 'False': 'D'},
-    'E': {'True': 'C', 'False': 'B'},
-    'V': {'True': 'H', 'False': 'H'},
-    'H': {'True': 'V', 'False': 'V'}
-    }
+
+
+
+ 
+
+
+    
