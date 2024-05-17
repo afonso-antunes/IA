@@ -188,10 +188,57 @@ matriz[i][j]
                 if peca[0] == "F":
                     for acao in acoes_comuns:
                         yield (linha, coluna, acao)
+
+if num_erradas == 0:
+                    if peca_cima != None and (linha - 1, coluna) in coordenadas_fechadas:
+                        quantas_bloqueadas += 1
+                    if peca_esquerda != None and (linha, coluna - 1) in coordenadas_fechadas:
+                        quantas_bloqueadas += 1
+                    if peca_direita != None and (linha, coluna + 1) in coordenadas_fechadas:
+                        quantas_bloqueadas += 1
+                    if peca_baixo != None and (linha + 1, coluna) in coordenadas_fechadas:
+                        quantas_bloqueadas += 1 
+                    if quantas_bloqueadas == num_orientacoes:
+                        print(peca, linha, coluna)
+                        coordenadas_fechadas.append((linha, coluna))
     
 
 
    
+   if num_orientacoes == 1: #F
+                    if peca == "FC" and peca_cima in coordenadas_fechadas: coordenadas_fechadas.append(coords)
+                    elif peca == "FB" and peca_baixo in coordenadas_fechadas: coordenadas_fechadas.append(coords)
+                    elif peca == "FD" and peca_direita in coordenadas_fechadas: coordenadas_fechadas.append(coords)
+                    elif peca == "FE" and peca_esquerda in coordenadas_fechadas: coordenadas_fechadas.append(coords)
+
+                elif num_orientacoes == 2:
+                    if peca == "LH":
+                        if peca_direita in coordenadas_fechadas and peca_esquerda in coordenadas_fechadas: coordenadas_fechadas.append(coords)
+                    elif peca == "LV":
+                        if peca_cima in coordenadas_fechadas and peca_baixo in coordenadas_fechadas: coordenadas_fechadas.append(coords)
+                    elif peca == "VB":
+                        if peca_direita in coordenadas_fechadas and peca_baixo in coordenadas_fechadas: coordenadas_fechadas.append(coords)
+                    elif peca == "VD":
+                        if peca_direita in coordenadas_fechadas and peca_cima in coordenadas_fechadas: coordenadas_fechadas.append(coords)
+                    elif peca == "VE":
+                        if peca_baixo in coordenadas_fechadas and peca_esquerda in coordenadas_fechadas: coordenadas_fechadas.append(coords)
+                    elif peca == "VC":
+                        if peca_cima in coordenadas_fechadas and peca_esquerda in coordenadas_fechadas: coordenadas_fechadas.append(coords)
+                
+                elif num_orientacoes == 3:
+                    if peca == "BB":
+                        if peca_direita in coordenadas_fechadas and peca_esquerda in coordenadas_fechadas and peca_baixo in coordenadas_fechadas:
+                            coordenadas_fechadas.append(coords)
+                    elif peca == "BC":
+                        if peca_direita in coordenadas_fechadas and peca_esquerda in coordenadas_fechadas and peca_cima in coordenadas_fechadas:
+                            coordenadas_fechadas.append(coords)
+                    elif peca == "BD":
+                        if peca_direita in coordenadas_fechadas and peca_cima in coordenadas_fechadas and peca_baixo in coordenadas_fechadas:
+                            coordenadas_fechadas.append(coords)
+                    elif peca == "BE":
+                        if peca_cima in coordenadas_fechadas and peca_esquerda in coordenadas_fechadas and peca_baixo in coordenadas_fechadas:
+                            coordenadas_fechadas.append(coords)
+
 
 
 

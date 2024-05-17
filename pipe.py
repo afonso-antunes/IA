@@ -109,12 +109,12 @@ class Board:
 
     def total_posicoes_imp(self):
 
-        penalizacoes = 0
+        penalizacoes, penalizacoes_bordas, penalizacoes_fecho, penalizacoes_trinco, penalizacoes_reta, penalizacoes_v = 0 ,0, 0, 0, 0, 0
         ult_pos = b_size - 1
-        penalizacoes_bordas, penalizacoes_fecho, penalizacoes_trinco, penalizacoes_reta, penalizacoes_v = 0, 0, 0, 0, 0
 
         for coluna in range(ult_pos+1):
             for linha in range(ult_pos+1):
+                #num_erradas = 0 
                 peca_direita, peca_esquerda, peca_cima, peca_baixo = None, None, None, None
                 peca = self.matriz_board[linha][coluna]
                 eh_canto, eh_fecho, eh_trinco, eh_reta, eh_v = False, False, False, False, False
@@ -136,8 +136,10 @@ class Board:
                 if peca_esquerda == None or peca_direita == None or peca_baixo == None or peca_cima == None:
                     eh_canto = True
                 direcoes_possiveis = combinacoes_possiveis[peca].keys()
+                #num_orientacoes = len(direcoes_possiveis)
                 if "left" in direcoes_possiveis and peca_esquerda not in combinacoes_possiveis[peca]["left"]:
-
+                    
+                    #num_erradas += 1
                     if eh_fecho and peca_esquerda != None and peca_esquerda[0] == "F": penalizacoes_fecho += 2
                     if eh_trinco and peca_esquerda != None: penalizacoes_trinco += 1
                     if eh_reta and peca_esquerda != None: penalizacoes_reta += 1
@@ -145,10 +147,10 @@ class Board:
                     if eh_canto: penalizacoes_bordas += 1
                     
                     else:
-                        
                         penalizacoes += 1
                 if "right" in direcoes_possiveis and peca_direita not in combinacoes_possiveis[peca]["right"]:
-
+                    
+                    #num_erradas += 1
                     if eh_fecho and peca_direita != None and peca_direita[0] == "F": penalizacoes_fecho += 2
                     if eh_trinco and peca_direita != None: penalizacoes_trinco += 1
                     if eh_reta and peca_direita != None: penalizacoes_reta += 1
@@ -156,10 +158,10 @@ class Board:
                     if eh_canto: penalizacoes_bordas += 1
                     
                     else:
-                        
                         penalizacoes += 1
                 if "up" in direcoes_possiveis and peca_cima not in combinacoes_possiveis[peca]["up"]:
-
+                    
+                    #num_erradas += 1
                     if eh_fecho and peca_cima != None and peca_cima[0] == "F": penalizacoes_fecho += 2
                     if eh_trinco and peca_cima != None: penalizacoes_trinco += 1
                     if eh_reta and peca_cima != None: penalizacoes_reta += 1
@@ -167,10 +169,10 @@ class Board:
                     if eh_canto: penalizacoes_bordas += 1
                     
                     else:
-                        
                         penalizacoes += 1
                 if "down" in direcoes_possiveis and peca_baixo not in combinacoes_possiveis[peca]["down"]:
 
+                    #num_erradas += 1
                     if eh_fecho and peca_baixo != None and peca_baixo[0] == "F": penalizacoes_fecho += 2
                     if eh_trinco and peca_baixo != None: penalizacoes_trinco += 1
                     if eh_reta and peca_baixo != None: penalizacoes_reta += 1
@@ -178,10 +180,12 @@ class Board:
                     if eh_canto: penalizacoes_bordas += 1
                     
                     else:
-                        
                         penalizacoes += 1
+                
 
-        return penalizacoes , penalizacoes_bordas, penalizacoes_fecho, penalizacoes_trinco, penalizacoes_reta, penalizacoes_v
+
+
+        return penalizacoes, penalizacoes_bordas, penalizacoes_fecho, penalizacoes_trinco, penalizacoes_reta, penalizacoes_v
     
    
     def penalizacao_bordas_cantos(self):
@@ -237,6 +241,82 @@ class Board:
         else:
             return 0  
        
+    def lock_pecas(self):
+        changed = True
+        ult_pos = b_size - 1
+        while changed:
+            changed = False
+            for coluna in range(ult_pos+1):
+                for linha in range(ult_pos+1):
+                    
+                    if (linha, coluna) in coordenadas_fechadas: continue
+                    peca_cima, peca_esquerda, peca_direita, peca_baixo = None, None, None, None
+                    peca = self.matriz_board[linha][coluna]
+                    num_certas = 0
+                    
+                    if linha != 0:
+                        peca_cima = self.matriz_board[linha - 1][coluna]
+                    if coluna != 0:
+                        peca_esquerda = self.matriz_board[linha][coluna - 1]
+                    if linha != ult_pos:
+                        peca_baixo = self.matriz_board[linha + 1][coluna]
+                    if coluna != ult_pos:
+                        peca_direita = self.matriz_board[linha][coluna + 1]
+
+                    coords = (linha, coluna)
+                    direcoes_possiveis = combinacoes_possiveis[peca].keys()
+                    num_orientacoes = len(direcoes_possiveis)
+
+                    if linha == 0 and coluna == 0 and peca[0] == "F" and peca_direita[0] == "F":
+                        self.matriz_board[linha][coluna] = "FB"
+                        coordenadas_fechadas.append(coords)
+                    elif linha == 0 and coluna == 0 and peca[0] == "F" and peca_baixo[0] == "F":
+                        self.matriz_board[linha][coluna] = "FD"
+                        coordenadas_fechadas.append(coords)
+                    elif linha == ult_pos and coluna == 0 and peca[0] == "F" and peca_cima[0] == "F":
+                        self.matriz_board[linha][coluna] = "FD"
+                        coordenadas_fechadas.append(coords)
+                    elif linha == ult_pos and coluna == 0 and peca[0] == "F" and peca_direita[0] == "F":
+                        self.matriz_board[linha][coluna] = "FC"
+                        coordenadas_fechadas.append(coords)
+                    elif linha == 0 and coluna == ult_pos and peca[0] == "F" and peca_esquerda[0] == "F":
+                        self.matriz_board[linha][coluna] = "FB"
+                        coordenadas_fechadas.append(coords)
+                    elif linha == 0 and coluna == ult_pos and peca[0] == "F" and peca_baixo[0] == "F":
+                        self.matriz_board[linha][coluna] = "FE"
+                        coordenadas_fechadas.append(coords)
+                    elif linha == ult_pos and coluna == ult_pos and peca[0] == "F" and peca_esquerda[0] == "F":
+                        self.matriz_board[linha][coluna] = "FC"
+                        coordenadas_fechadas.append(coords)
+                    elif linha == ult_pos and coluna == ult_pos and peca[0] == "F" and peca_cima[0] == "F":
+                        self.matriz_board[linha][coluna] = "FE"
+                        coordenadas_fechadas.append(coords)
+                    
+        
+                    
+                    if "left" in direcoes_possiveis and peca_esquerda in combinacoes_possiveis[peca]["left"]:
+                        if (linha, coluna - 1) in coordenadas_fechadas:
+                            num_certas += 1
+                    if "right" in direcoes_possiveis and peca_direita in combinacoes_possiveis[peca]["right"]:
+                        if (linha, coluna + 1) in coordenadas_fechadas:
+                            num_certas += 1
+                    if "up" in direcoes_possiveis and peca_cima in combinacoes_possiveis[peca]["up"]:
+                        if (linha - 1, coluna) in coordenadas_fechadas:
+                            num_certas += 1
+                    if "down" in direcoes_possiveis and peca_baixo in combinacoes_possiveis[peca]["down"]:
+                        if (linha + 1, coluna) in coordenadas_fechadas:
+                            num_certas += 1
+                    
+                    if peca[0] == "L" and num_certas == 1:
+                        changed = True
+                        coordenadas_fechadas.append(coords)
+                    if num_certas == num_orientacoes:
+                        changed = True
+                        coordenadas_fechadas.append(coords)
+        
+                
+    
+
     def get_value(self, row: int, col: int) -> str:
         if 0 <= row < len(self.matriz_board) and 0 <= col < len(self.matriz_board[0]):
             return self.matriz_board[row][col]
@@ -398,7 +478,7 @@ class PipeMania(Problem):
                     yield (linha, coluna, RODA_HORARIO)
                 elif peca == "VD" and linha == ult_pos:
                     yield (linha, coluna, RODA_ANTIHORARIO)
-
+      
                 else:
                     yield (linha, coluna, RODA_HORARIO)
                     yield (linha, coluna, RODA_ANTIHORARIO)
@@ -489,6 +569,7 @@ if __name__ == "__main__":
     #print("is goal? ", problem.goal_test(problem))
     #problem.board.board_print()
     b_size = board.board_size()
+    problem.board.lock_pecas()
     goal_node = recursive_best_first_search(problem)
     print(goal_node.state.board.board_print(), sep="")
     
