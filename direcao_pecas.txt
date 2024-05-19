@@ -205,45 +205,94 @@ if num_erradas == 0:
 
 
    
-   if num_orientacoes == 1: #F
-                    if peca == "FC" and peca_cima in coordenadas_fechadas: coordenadas_fechadas.append(coords)
-                    elif peca == "FB" and peca_baixo in coordenadas_fechadas: coordenadas_fechadas.append(coords)
-                    elif peca == "FD" and peca_direita in coordenadas_fechadas: coordenadas_fechadas.append(coords)
-                    elif peca == "FE" and peca_esquerda in coordenadas_fechadas: coordenadas_fechadas.append(coords)
-
-                elif num_orientacoes == 2:
-                    if peca == "LH":
-                        if peca_direita in coordenadas_fechadas and peca_esquerda in coordenadas_fechadas: coordenadas_fechadas.append(coords)
-                    elif peca == "LV":
-                        if peca_cima in coordenadas_fechadas and peca_baixo in coordenadas_fechadas: coordenadas_fechadas.append(coords)
-                    elif peca == "VB":
-                        if peca_direita in coordenadas_fechadas and peca_baixo in coordenadas_fechadas: coordenadas_fechadas.append(coords)
-                    elif peca == "VD":
-                        if peca_direita in coordenadas_fechadas and peca_cima in coordenadas_fechadas: coordenadas_fechadas.append(coords)
-                    elif peca == "VE":
-                        if peca_baixo in coordenadas_fechadas and peca_esquerda in coordenadas_fechadas: coordenadas_fechadas.append(coords)
-                    elif peca == "VC":
-                        if peca_cima in coordenadas_fechadas and peca_esquerda in coordenadas_fechadas: coordenadas_fechadas.append(coords)
-                
-                elif num_orientacoes == 3:
-                    if peca == "BB":
-                        if peca_direita in coordenadas_fechadas and peca_esquerda in coordenadas_fechadas and peca_baixo in coordenadas_fechadas:
-                            coordenadas_fechadas.append(coords)
-                    elif peca == "BC":
-                        if peca_direita in coordenadas_fechadas and peca_esquerda in coordenadas_fechadas and peca_cima in coordenadas_fechadas:
-                            coordenadas_fechadas.append(coords)
-                    elif peca == "BD":
-                        if peca_direita in coordenadas_fechadas and peca_cima in coordenadas_fechadas and peca_baixo in coordenadas_fechadas:
-                            coordenadas_fechadas.append(coords)
-                    elif peca == "BE":
-                        if peca_cima in coordenadas_fechadas and peca_esquerda in coordenadas_fechadas and peca_baixo in coordenadas_fechadas:
-                            coordenadas_fechadas.append(coords)
-
+   
 
 
 
 
  
 
+def verifica_bloqueio(self, linha, coluna):
+        if (linha, coluna) in coordenadas_fechadas: return
+        ult_pos = b_size - 1
+        peca_cima, peca_esquerda, peca_direita, peca_baixo = None, None, None, None
+        num_bloqueios = 0
+        peca = self.matriz_board[linha][coluna]
+        if linha != 0:
+            peca_cima = self.matriz_board[linha - 1][coluna]
+        if coluna != 0:
+            peca_esquerda = self.matriz_board[linha][coluna - 1]
+        if linha != ult_pos:
+            peca_baixo = self.matriz_board[linha + 1][coluna]
+        if coluna != ult_pos:
+            peca_direita = self.matriz_board[linha][coluna + 1]
 
+        direcoes_possiveis = combinacoes_possiveis[peca].keys()
+        num_orientacoes = len(direcoes_possiveis)
+        if linha == ult_pos - 1 and coluna == 1: print(num_orientacoes)
+        if "left" in direcoes_possiveis and peca_esquerda in combinacoes_possiveis[peca]["left"]:
+            if linha == ult_pos - 1 and coluna == 1: print("ola")
+            if (linha, coluna - 1) in coordenadas_fechadas:
+                num_bloqueios += 1
+        if "right" in direcoes_possiveis and peca_direita in combinacoes_possiveis[peca]["right"]:
+            if linha == ult_pos - 1 and coluna == 1: print("ola2")
+            if (linha, coluna + 1) in coordenadas_fechadas:
+                print(peca_direita)
+                num_bloqueios += 1
+        if "up" in direcoes_possiveis and peca_cima in combinacoes_possiveis[peca]["up"]:
+            if linha == ult_pos - 1 and coluna == 1: print("ola3")
+            if (linha - 1, coluna) in coordenadas_fechadas:
+                num_bloqueios += 1
+        if "down" in direcoes_possiveis and peca_baixo in combinacoes_possiveis[peca]["down"]:
+            if linha == ult_pos - 1 and coluna == 1: print("ola7")
+            if (linha + 1, coluna) in coordenadas_fechadas:
+                num_bloqueios += 1
+        if linha == ult_pos - 1 and coluna == 1: print(peca, "pecva")
+        if num_orientacoes == num_bloqueios: 
+            if linha == ult_pos - 1 and coluna == 1:
+                print(peca_baixo, "peca down")
+                coordenadas_fechadas.append((linha, coluna))
     
+
+
+
+    def penalizacao_bordas_cantos(self):
+        
+        ult_pos = b_size - 1
+        penalizacao = 0
+
+        for i in range(ult_pos+1):
+            pecaBordaEsq = self.matriz_board[i][0]
+            pecaBordaCima = self.matriz_board[0][i]
+            pecaBordaBaixo = self.matriz_board[ult_pos][i]
+            pecaBordaDir = self.matriz_board[i][ult_pos]
+
+            if i == 0:
+                if pecaBordaEsq in pecas_bordas_cantos[0] or pecaBordaEsq in pecas_bordas_cantos[1]:
+                    penalizacao += 3
+            
+            elif i == ult_pos:
+                if pecaBordaEsq in pecas_bordas_cantos[0] or pecaBordaEsq in pecas_bordas_cantos[2]:
+                    penalizacao += 3
+                
+                if pecaBordaCima in pecas_bordas_cantos[1] or pecaBordaCima in pecas_bordas_cantos[3]:
+                    penalizacao += 3
+                
+                if pecaBordaBaixo in pecas_bordas_cantos[2] or pecaBordaBaixo in pecas_bordas_cantos[3]:
+                    penalizacao += 3
+            
+            else:
+                if pecaBordaEsq in pecas_bordas_cantos[0]:
+                    penalizacao += 3
+                
+                if pecaBordaCima in pecas_bordas_cantos[1]:
+                    penalizacao += 3
+                
+                if pecaBordaBaixo in pecas_bordas_cantos[2]:
+                    penalizacao += 3
+
+                if pecaBordaDir in pecas_bordas_cantos[3]:
+                    penalizacao += 3
+
+        return penalizacao 
+
