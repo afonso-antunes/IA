@@ -26,65 +26,72 @@ pecas_bordas_cantos = ( ("BB", "BC", "BE", "LH", "FE", "VC", "VE"),  # coluna es
                         ("BB", "BD", "BE", "LV", "FB", "VE", "VB"),  # linha de baixo
                         ("BC", "BD", "BB", "LH", "FD", "VD", "VB"),) # coluna direita
 
-coordenadas_fechadas = set()
+coordenadas_fechadas = None
 
 RODA_HORARIO = 1
 RODA_ANTIHORARIO = 2
 RODA_180 = 3
 
+tipo_pecas = {
+    "L": set(("LV", "LH")),
+    "V": set(("VC", "VB", "VD", "VE")),
+    "B": set(("BE", "BD", "BC", "BB")),
+    "F": set(("FC", "FE", "FD", "FB"))
+    }
 
-pos_impossivel = {
 
-    "down": ("FC", "VC", "VD"),
-    "left": ("FD", "VD", "VB"),
-    "right": ("FE", "VE", "VC"),
-    "up": ("FB", "VE", "VB")
+# posicao que pecas podem estar nos cantos ou entre paralelas que funcionam como cantos
+pos_cantos = {
+    "right": set(("BE", "VC", "VE", "LV", "FC", "FB", "FE")),
+    "left": set(("BD", "LV", "VB", "VD", "FB", "FC", "FD")),
+    "up": set(("BB", "FD", "FE", "LH", "FB", "VE", "VB")),
+    "down": set(("BC", "FE", "FD", "FC", "VC", "VD", "LH"))
     }
 
 
 combinacoes_possiveis = {                   
         "BB": {
-            "left": ["BB", "BC", "BD", "FD", "LH", "VB", "VD"], 
-            "right": ["BB", "BC", "BE", "FE", "LH", "VC", "VE"],
-            "down": ["BC", "BD", "BE", "FC", "LV", "VC", "VD"]},
+            "left": set(("BB", "BC", "BD", "FD", "LH", "VB", "VD")), 
+            "right": set(("BB", "BC", "BE", "FE", "LH", "VC", "VE")),
+            "down": set(("BC", "BD", "BE", "FC", "LV", "VC", "VD"))},
         "BC": {
-            "left": ["BB", "BC", "BD", "FD", "LH", "VB", "VD"],
-            "right": ["BB", "BC", "BE", "FE", "LH", "VC", "VE"], 
-            "up": ["BB", "BD", "BE", "FB", "LV", "VB", "VE"]},
+            "left": set(("BB", "BC", "BD", "FD", "LH", "VB", "VD")),
+            "right": set(("BB", "BC", "BE", "FE", "LH", "VC", "VE")), 
+            "up": set(("BB", "BD", "BE", "FB", "LV", "VB", "VE"))},
         "BD": {
-            "up": ["BB", "BD", "BE", "FB", "LV", "VB", "VE"], 
-            "right": ["BB", "BC", "BE", "FE", "LH", "VC", "VE"], 
-            "down": ["BC", "BD", "BE", "FC", "LV", "VC", "VD"]},
+            "up": set(("BB", "BD", "BE", "FB", "LV", "VB", "VE")), 
+            "right": set(("BB", "BC", "BE", "FE", "LH", "VC", "VE")), 
+            "down": set(("BC", "BD", "BE", "FC", "LV", "VC", "VD"))},
         "BE": {
-            "up": ["BB", "BD", "BE", "FB", "LV", "VB", "VE"], 
-            "left": ["BB", "BC", "BD", "FD", "LH", "VB", "VD"], 
-            "down": ["BC", "BD", "BE", "FC", "LV", "VC", "VD"]},
+            "up": set(("BB", "BD", "BE", "FB", "LV", "VB", "VE")), 
+            "left": set(("BB", "BC", "BD", "FD", "LH", "VB", "VD")), 
+            "down": set(("BC", "BD", "BE", "FC", "LV", "VC", "VD"))},
         "FB": {
-            "down": ["BC", "BD", "BE", "LV", "VC", "VD"]},
+            "down": set(("BC", "BD", "BE", "LV", "VC", "VD"))},
         "FC": {
-            "up": ["BB", "BD", "BE", "LV", "VB", "VE"]},
+            "up": set(("BB", "BD", "BE", "LV", "VB", "VE"))},
         "FD": {
-            "right": ["BB", "BC", "BE", "LH", "VC", "VE"]},
+            "right": set(("BB", "BC", "BE", "LH", "VC", "VE"))},
         "FE": {
-            "left": ["BB", "BC", "BD", "LH", "VB", "VD"]},
+            "left": set(("BB", "BC", "BD", "LH", "VB", "VD"))},
         "LH": {
-            "left": ["BB", "BC", "BD", "FD", "LH", "VB", "VD"], 
-            "right": ["BB", "BC", "BE", "FE", "LH", "VC", "VE"]},
+            "left": set(("BB", "BC", "BD", "FD", "LH", "VB", "VD")), 
+            "right": set(("BB", "BC", "BE", "FE", "LH", "VC", "VE"))},
         "LV": {
-            "down": ["BC", "BD", "BE", "FC", "LV", "VC", "VD"], 
-            "up": ["BB", "BD", "BE", "FB", "LV", "VB", "VE"]},
+            "down": set(("BC", "BD", "BE", "FC", "LV", "VC", "VD")), 
+            "up": set(("BB", "BD", "BE", "FB", "LV", "VB", "VE"))},
         "VB": {
-            "right": ["BB", "BC", "BE", "FE", "LH", "VC", "VE"], 
-            "down": ["BC", "BD", "BE", "FC", "LV", "VC", "VD"]},
+            "right": set(("BB", "BC", "BE", "FE", "LH", "VC", "VE")), 
+            "down": set(("BC", "BD", "BE", "FC", "LV", "VC", "VD"))},
         "VC": {
-            "left": ["BB", "BC", "BD", "FD", "LH", "VB", "VD"], 
-            "up": ["BB", "BD", "BE", "FB", "LV", "VB", "VE"]},
+            "left": set(("BB", "BC", "BD", "FD", "LH", "VB", "VD")), 
+            "up": set(("BB", "BD", "BE", "FB", "LV", "VB", "VE"))},
         "VD": {
-            "right": ["BB", "BC", "BE", "FE", "LH", "VC", "VE"], 
-            "up": ["BB", "BD", "BE", "FB", "LV", "VB", "VE"]},
+            "right": set(("BB", "BC", "BE", "FE", "LH", "VC", "VE")), 
+            "up": set(("BB", "BD", "BE", "FB", "LV", "VB", "VE"))},
         "VE": {
-            "left": ["BB", "BC", "BD", "FD", "LH", "VB", "VD"], 
-            "down": ["BC", "BD", "BE", "FC", "LV", "VC", "VD"]}
+            "left": set(("BB", "BC", "BD", "FD", "LH", "VB", "VD")), 
+            "down": set(("BC", "BD", "BE", "FC", "LV", "VC", "VD"))}
         }
 
 
@@ -116,6 +123,73 @@ class Board:
 
     def __init__(self):
         self.matriz_board = []
+
+    def bloqueia_pecas(self):
+        ult_pos = b_size - 1
+        changed = True
+        while changed:
+            changed = False
+            for linha in range(ult_pos+1):
+                for coluna in range(ult_pos+1):
+                    
+                    if coordenadas_fechadas[linha, coluna]: continue
+                    peca_direita, peca_esquerda, peca_cima, peca_baixo = None, None, None, None
+                    peca = self.matriz_board[linha][coluna]
+                    
+
+                    peca_cima = self.matriz_board[linha - 1][coluna] if linha > 0 else None
+                    peca_esquerda = self.matriz_board[linha][coluna - 1] if coluna > 0 else None
+                    peca_baixo = self.matriz_board[linha + 1][coluna] if linha < ult_pos else None
+                    peca_direita = self.matriz_board[linha][coluna + 1] if coluna < ult_pos else None
+
+                    coord_cima = (linha - 1, coluna) if linha > 0 else None
+                    coord_baixo = (linha + 1, coluna) if linha < ult_pos else None
+                    coord_dir = (linha, coluna + 1) if coluna < ult_pos else None
+                    coord_esq = (linha, coluna - 1) if coluna > 0 else None
+
+                    pipes_possiveis = set(tipo_pecas[peca[0]])
+                    lista_final = pipes_possiveis.copy()
+
+                    if peca_baixo != None and coordenadas_fechadas[coord_baixo[0], coord_baixo[1]]:
+                        direcoes_possiveis = combinacoes_possiveis[peca_baixo].keys()
+                        if "up" in direcoes_possiveis:
+                            lista_final &= combinacoes_possiveis[peca_baixo]["up"]
+                        else: lista_final &= pos_cantos["down"]
+                    elif peca_baixo == None:
+                        lista_final &= pos_cantos["down"]
+                        
+                    if peca_cima != None and coordenadas_fechadas[coord_cima[0], coord_cima[1]]:
+                        direcoes_possiveis = combinacoes_possiveis[peca_cima].keys()
+                        if "down" in direcoes_possiveis:
+                            lista_final &= combinacoes_possiveis[peca_cima]["down"]
+                        else: lista_final &= pos_cantos["up"]
+                    elif peca_cima == None:
+                        lista_final &= pos_cantos["up"]
+
+                    if peca_direita != None and coordenadas_fechadas[coord_dir[0], coord_dir[1]]:
+                        direcoes_possiveis = combinacoes_possiveis[peca_direita].keys()
+                        if "left" in direcoes_possiveis:
+                            lista_final &= combinacoes_possiveis[peca_direita]["left"]
+                        else: lista_final &= pos_cantos["right"]
+                    elif peca_direita == None:
+                        lista_final &= pos_cantos["right"]
+
+                    if peca_esquerda != None and coordenadas_fechadas[coord_esq[0], coord_esq[1]]:
+                        direcoes_possiveis = combinacoes_possiveis[peca_esquerda].keys()
+                        if "right" in direcoes_possiveis:
+                            lista_final &= combinacoes_possiveis[peca_esquerda]["right"]
+                        else: lista_final &= pos_cantos["left"]
+                    elif peca_esquerda == None:
+                        lista_final &= pos_cantos["left"]
+
+            
+                    aux= list(lista_final)
+                    if len(aux) == 1:
+                        self.matriz_board[linha][coluna] = aux[0]
+                        coordenadas_fechadas[linha, coluna] = 1
+                        changed = True
+
+
 
     def total_posicoes_imp(self):
 
@@ -149,41 +223,41 @@ class Board:
                 
                 if "left" in direcoes_possiveis and peca_esquerda not in combinacoes_possiveis[peca]["left"]:
                     
-                    if eh_fecho and peca_esquerda != None and peca_esquerda[0] == "F": penalizacoes_fecho += 1
-                    if eh_trinco and peca_esquerda != None: penalizacoes_trinco += 1
+                    if eh_fecho and peca_esquerda != None and peca_esquerda[0] == "F": penalizacoes_fecho += 3
+                    if eh_trinco and peca_esquerda != None: penalizacoes_trinco += 2
                     if eh_reta and peca_esquerda != None: penalizacoes_reta += 1
                     if eh_v and peca_esquerda != None: penalizacoes_v += 1
-                    if eh_canto: penalizacoes_bordas += 1
+                    if eh_canto: penalizacoes_bordas += 2
                     
                     else:
                         penalizacoes += 1
                 if "right" in direcoes_possiveis and peca_direita not in combinacoes_possiveis[peca]["right"]:
                     
-                    if eh_fecho and peca_direita != None and peca_direita[0] == "F": penalizacoes_fecho += 1
-                    if eh_trinco and peca_direita != None: penalizacoes_trinco += 1
+                    if eh_fecho and peca_direita != None and peca_direita[0] == "F": penalizacoes_fecho += 3
+                    if eh_trinco and peca_direita != None: penalizacoes_trinco += 2
                     if eh_reta and peca_direita != None: penalizacoes_reta += 1
                     if eh_v and peca_direita != None: penalizacoes_v += 1
-                    if eh_canto: penalizacoes_bordas += 1
+                    if eh_canto: penalizacoes_bordas += 2
                     
                     else:
                         penalizacoes += 1
                 if "up" in direcoes_possiveis and peca_cima not in combinacoes_possiveis[peca]["up"]:
                     
-                    if eh_fecho and peca_cima != None and peca_cima[0] == "F": penalizacoes_fecho += 1
-                    if eh_trinco and peca_cima != None: penalizacoes_trinco += 1
+                    if eh_fecho and peca_cima != None and peca_cima[0] == "F": penalizacoes_fecho += 3
+                    if eh_trinco and peca_cima != None: penalizacoes_trinco += 2
                     if eh_reta and peca_cima != None: penalizacoes_reta += 1
                     if eh_v and peca_cima != None: penalizacoes_v += 1
-                    if eh_canto: penalizacoes_bordas += 1
+                    if eh_canto: penalizacoes_bordas += 2
                     
                     else:
                         penalizacoes += 1
                 if "down" in direcoes_possiveis and peca_baixo not in combinacoes_possiveis[peca]["down"]:
 
-                    if eh_fecho and peca_baixo != None and peca_baixo[0] == "F": penalizacoes_fecho += 1
-                    if eh_trinco and peca_baixo != None: penalizacoes_trinco += 1
+                    if eh_fecho and peca_baixo != None and peca_baixo[0] == "F": penalizacoes_fecho += 3
+                    if eh_trinco and peca_baixo != None: penalizacoes_trinco += 2
                     if eh_reta and peca_baixo != None: penalizacoes_reta += 1
                     if eh_v and peca_baixo != None: penalizacoes_v += 1
-                    if eh_canto: penalizacoes_bordas += 1
+                    if eh_canto: penalizacoes_bordas += 2
                     
                     else:
                         penalizacoes += 1
@@ -204,212 +278,6 @@ class Board:
         else:
             return 0  
        
-    def lock_pecas(self):
-        changed = True
-        ult_pos = b_size - 1
-
-        def fechar_peca(linha, coluna, nova_peca):
-            self.matriz_board[linha][coluna] = nova_peca
-            coordenadas_fechadas.add((linha, coluna))
-            changed = True
-
-        while changed:
-            changed = False
-            for coluna in range(ult_pos+1):
-                for linha in range(ult_pos+1):
-                    
-                    if (linha, coluna) in coordenadas_fechadas: continue
-                    peca_cima, peca_esquerda, peca_direita, peca_baixo = None, None, None, None
-                    peca = self.matriz_board[linha][coluna]
-                    num_certas = 0
-                    
-                    peca_cima = self.matriz_board[linha - 1][coluna] if linha > 0 else None
-                    peca_esquerda = self.matriz_board[linha][coluna - 1] if coluna > 0 else None
-                    peca_baixo = self.matriz_board[linha + 1][coluna] if linha < ult_pos else None
-                    peca_direita = self.matriz_board[linha][coluna + 1] if coluna < ult_pos else None
-                    
-        
-                    coords = (linha, coluna)
-                    direcoes_possiveis = combinacoes_possiveis[peca].keys()
-                    num_orientacoes = len(direcoes_possiveis)
-                    
-                    if linha == 0 and coluna == 0 and peca[0] == "F" and peca_direita[0] == "F":
-                        fechar_peca(linha, coluna, "FB")
-                        if peca_baixo[0] == "V": 
-                            fechar_peca(linha + 1, coluna, "VD")
-                    elif linha == 0 and coluna == 0 and peca[0] == "F" and peca_baixo[0] == "F":
-                        fechar_peca(linha, coluna, "FD")
-                        if peca_direita[0] == "V":
-                            fechar_peca(linha, coluna + 1, "VE")
-                    elif linha == ult_pos and coluna == 0 and peca[0] == "F" and peca_cima[0] == "F":
-                        fechar_peca(linha, coluna, "FD")
-                        if peca_direita[0] == "V":
-                            fechar_peca(linha, coluna + 1, "VC")
-                    elif linha == ult_pos and coluna == 0 and peca[0] == "F" and peca_direita[0] == "F":
-                        fechar_peca(linha, coluna, "FC")
-                        if peca_cima[0] == "V":
-                            fechar_peca(linha - 1, coluna, "VB")
-                    elif linha == 0 and coluna == ult_pos and peca[0] == "F" and peca_esquerda[0] == "F":
-                        fechar_peca(linha, coluna, "FB")
-                        if peca_baixo[0] == "V":
-                            fechar_peca(linha + 1, coluna, "VC")
-                    elif linha == 0 and coluna == ult_pos and peca[0] == "F" and peca_baixo[0] == "F":
-                        fechar_peca(linha, coluna, "FE")
-                        if peca_esquerda[0] == "V":
-                            fechar_peca(linha, coluna - 1, "VB")
-                    elif linha == ult_pos and coluna == ult_pos and peca[0] == "F" and peca_esquerda[0] == "F":
-                        fechar_peca(linha, coluna, "FC")
-                        if peca_cima[0] == "V":
-                            fechar_peca(linha - 1, coluna, "VE")
-                    elif linha == ult_pos and coluna == ult_pos and peca[0] == "F" and peca_cima[0] == "F":
-                        fechar_peca(linha, coluna, "FE")
-                        if peca_esquerda[0] == "V":
-                            fechar_peca(linha, coluna - 1, "VD")
-
-                    if linha == 0 and coluna == 0 and peca[0] == "F" and (peca_baixo == "LV" or peca_baixo[0] == "B"):
-                        fechar_peca(linha, coluna, "FB")
-                        if peca_direita[0] == "V":
-                            fechar_peca(linha, coluna + 1, "VB")
-                    if linha == 0 and coluna == 0 and peca[0] == "F" and (peca_direita == "LH" or peca_direita[0] == "B"):
-                        fechar_peca(linha, coluna, "FD")
-                        if peca_baixo[0] == "V":
-                            fechar_peca(linha + 1, coluna, "VB")
-                    if linha == 0 and coluna == ult_pos and peca[0] == "F" and (peca_esquerda == "LH" or peca_esquerda[0] == "B"):
-                        fechar_peca(linha, coluna, "FE")
-                        if peca_baixo[0] == "V":
-                            fechar_peca(linha + 1, coluna, "VE")
-                    if linha == 0 and coluna == ult_pos and peca[0] == "F" and (peca_baixo == "LV" or peca_baixo[0] == "B"):
-                        fechar_peca(linha, coluna, "FB")
-                        if peca_esquerda[0] == "V":
-                            fechar_peca(linha, coluna - 1, "VE")
-                    if linha == ult_pos and coluna == ult_pos and peca[0] == "F" and (peca_cima == "LV" or peca_cima[0] == "B"):
-                        fechar_peca(linha, coluna, "FC")
-                        if peca_esquerda[0] == "V":
-                            fechar_peca(linha, coluna - 1, "VC")
-                    if linha == ult_pos and coluna == ult_pos and peca[0] == "F" and (peca_esquerda == "LH" or peca_esquerda[0] == "B"):
-                        fechar_peca(linha, coluna, "FE")
-                        if peca_cima[0] == "V":
-                            fechar_peca(linha - 1, coluna, "VC")
-                    if linha == ult_pos and coluna == 0 and peca[0] == "F" and (peca_cima == "LV" or peca_cima[0] == "B"):
-                        fechar_peca(linha, coluna, "FC")
-                        if peca_direita[0] == "V":
-                            fechar_peca(linha, coluna + 1, "VD")
-                    if linha == ult_pos and coluna == 0 and peca[0] == "F" and (peca_direita == "LH" or peca_direita[0] == "B"):
-                        fechar_peca(linha, coluna, "FD")
-                        if peca_cima[0] == "V":
-                            fechar_peca(linha - 1, coluna, "VD")
-
-                    if coluna == 0 and linha != 0 and linha != ult_pos:
-                        if peca[0] == "V" and (peca_cima[0] == "B" or peca_cima == "LV"):
-                            fechar_peca(linha, coluna, "VD")
-                        elif peca[0] == "V" and (peca_baixo[0] == "B" or peca_baixo == "LV"):
-                            fechar_peca(linha, coluna, "VB")
-                        elif peca[0] == "F" and (peca_cima[0] == "B" or peca_cima == "LV"):
-                            fechar_peca(linha, coluna, "FC")
-                        elif peca[0] == "F" and (peca_baixo[0] == "B" or peca_baixo == "LV"):
-                            fechar_peca(linha, coluna, "FB")
-                        elif peca in {"VC", "VE"}:
-                            self.matriz_board[linha][coluna] = "VD"
-                    if linha == 0 and coluna != 0 and coluna != ult_pos:
-                        if peca[0] == "V" and (peca_esquerda[0] == "B" or peca_esquerda == "LH"):
-                            fechar_peca(linha, coluna, "VE")
-                        elif peca[0] == "V" and (peca_direita[0] == "B" or peca_direita == "LH"):
-                            fechar_peca(linha, coluna, "VB")
-                        elif peca[0] == "F" and (peca_esquerda[0] == "B" or peca_esquerda == "LH"):
-                            fechar_peca(linha, coluna, "FE")
-                        elif peca[0] == "F" and (peca_direita[0] == "B" or peca_direita == "LH"):
-                            fechar_peca(linha, coluna, "FD")
-                        elif peca in {"VC", "VD"}:
-                            self.matriz_board[linha][coluna] = "VE"
-                    if coluna == ult_pos and linha != 0 and linha != ult_pos:
-                        if peca[0] == "V" and (peca_cima[0] == "B" or peca_cima == "LV"):
-                            fechar_peca(linha, coluna, "VC")
-                        elif peca[0] == "V" and (peca_baixo[0] == "B" or peca_baixo == "LV"):
-                            fechar_peca(linha, coluna, "VE")
-                        elif peca[0] == "F" and (peca_cima[0] == "B" or peca_cima == "LV"):
-                            fechar_peca(linha, coluna, "FC")
-                        elif peca[0] == "F" and peca_baixo[0] == "B" or peca_baixo == "LV":
-                            fechar_peca(linha, coluna, "FB")
-                        elif peca in {"VB", "VD"}:
-                            self.matriz_board[linha][coluna] = "VC"
-                    if linha == ult_pos and coluna != 0 and coluna != ult_pos:
-                        if peca[0] == "V" and peca_esquerda[0] == "B" or peca_esquerda == "LH":
-                            fechar_peca(linha, coluna, "VC")
-                        elif peca[0] == "V" and (peca_direita[0] == "B" or peca_direita == "LH"):
-                            fechar_peca(linha, coluna, "VD")
-                        elif peca[0] == "F" and (peca_esquerda[0] == "B" or peca_esquerda == "LH"):
-                            fechar_peca(linha, coluna, "FE")
-                        elif peca[0] == "F" and (peca_direita[0] == "B" or peca_direita == "LH"):
-                            fechar_peca(linha, coluna, "FD")
-                        elif peca in {"VB", "VE"}:
-                            self.matriz_board[linha][coluna] = "VD"
-                    if linha == 1 and coluna == 0 and peca_cima == "VB":
-                        if peca[0] == "F":
-                            fechar_peca(linha, coluna, "FC")
-                        elif peca[0] == "V":
-                            fechar_peca(linha, coluna, "VD")
-                    if linha == 0 and coluna == 1 and peca_esquerda == "VB":
-                        if peca[0] == "F":
-                            fechar_peca(linha, coluna, "FE")
-                        elif peca[0] == "V":
-                            fechar_peca(linha, coluna, "VE")
-                    if linha == (ult_pos - 1) and coluna == 0 and peca_baixo == "VD":
-                        if peca[0] == "F":
-                            fechar_peca(linha, coluna, "FB")
-                        elif peca[0] == "V":
-                            fechar_peca(linha, coluna, "VB")
-                    if linha == ult_pos and coluna == 1 and peca_esquerda == "VD":
-                        if peca[0] == "F":
-                            fechar_peca(linha, coluna, "FE")
-                        elif peca[0] == "V":
-                            fechar_peca(linha, coluna, "VC")
-                    if linha == 0 and coluna == ult_pos - 1 and peca_direita == "VE":
-                        if peca[0] == "F":
-                            fechar_peca(linha, coluna, "FD")
-                        elif peca[0] == "V":
-                            fechar_peca(linha, coluna, "VB")
-                    if linha == 1 and coluna == ult_pos and peca_cima == "VE":
-                        if peca[0] == "F":
-                            fechar_peca(linha, coluna, "FC")
-                        elif peca[0] == "V":
-                            fechar_peca(linha, coluna, "VC")
-                    if linha == ult_pos - 1 and coluna == ult_pos and peca_baixo == "VC":
-                        if peca[0] == "F":
-                            fechar_peca(linha, coluna, "FB")
-                        elif peca[0] == "V":
-                            fechar_peca(linha, coluna, "VE")
-                    if linha == ult_pos and coluna == ult_pos - 1 and peca_direita == "VC":
-                        if peca[0] == "F":
-                            fechar_peca(linha, coluna, "FD")
-                        elif peca[0] == "V":
-                            fechar_peca(linha, coluna, "VD")
-
-                           
-                    if coluna == 0 and 0 < linha < ult_pos and peca[0] == "B":
-                        if peca_direita[0] == "F":
-                            fechar_peca(linha, coluna + 1, "FE")
-                        elif peca_direita[0] == "L":
-                            fechar_peca(linha, coluna + 1, "LH")
-                    if coluna == ult_pos and 0 < linha < ult_pos and peca[0] == "B":
-                        if peca_esquerda[0] == "F":
-                            fechar_peca(linha, coluna - 1, "FD")
-                        elif peca_esquerda[0] == "L":
-                            fechar_peca(linha, coluna - 1, "LH")
-                    if linha == 0 and 0 < coluna < ult_pos and peca[0] == "B":
-                        if peca_baixo[0] == "F":
-                            fechar_peca(linha + 1, coluna, "FC")
-                        elif peca_baixo[0] == "L":
-                            fechar_peca(linha + 1, coluna, "LV")
-                    if linha == ult_pos and 0 < coluna < ult_pos and peca[0] == "B":
-                        if peca_cima[0] == "F":
-                            fechar_peca(linha - 1, coluna, "FB")
-                        elif peca_cima[0] == "L":
-                            fechar_peca(linha - 1, coluna, "LV")
-
-                    
-        
-                
-    
 
     def get_value(self, row: int, col: int) -> str:
         if 0 <= row < len(self.matriz_board) and 0 <= col < len(self.matriz_board[0]):
@@ -446,9 +314,12 @@ class Board:
 
     @staticmethod
     def parse_instance():
+        global coordenadas_fechadas
+        
         board = Board()
         linha_atual = stdin.readline().split()
         size = len(linha_atual) - 1
+        coordenadas_fechadas = np.zeros((size+1,size+1),dtype=bool)
         linha_matriz = 0
 
         while linha_atual:
@@ -459,54 +330,54 @@ class Board:
                 if coluna == 0 and linha_matriz == 0:
                     if peca[0] == "V":
                         peca = "VB"
-                        coordenadas_fechadas.add((linha_matriz, coluna))
+                        coordenadas_fechadas[linha_matriz, coluna] = 1
                 elif coluna == 0 and linha_matriz == size:
                     if peca[0] == "V":
                         peca = "VD"
-                        coordenadas_fechadas.add((linha_matriz, coluna))
+                        coordenadas_fechadas[linha_matriz, coluna] = 1
                 elif coluna == size and linha_matriz == 0:
                     if peca[0] == "V":
                         peca = "VE"
-                        coordenadas_fechadas.add((linha_matriz, coluna))
+                        coordenadas_fechadas[linha_matriz, coluna] = 1
                 elif coluna == size and linha_matriz == size:
                     if peca[0] == "V":
                         peca = "VC"
-                        coordenadas_fechadas.add((linha_matriz, coluna))
+                        coordenadas_fechadas[linha_matriz, coluna] = 1
                 elif coluna == 0:
                     if peca[0] == "B":
                         peca = "BD"
-                        coordenadas_fechadas.add((linha_matriz, coluna))
+                        coordenadas_fechadas[linha_matriz, coluna] = 1
                     elif peca[0] == "L":
                         peca = "LV"
-                        coordenadas_fechadas.add((linha_matriz, coluna))
+                        coordenadas_fechadas[linha_matriz, coluna] = 1
                 elif linha_matriz == 0:
                     if peca[0] == "B":
                         peca = "BB"
-                        coordenadas_fechadas.add((linha_matriz, coluna))
+                        coordenadas_fechadas[linha_matriz, coluna] = 1
                     elif peca[0] == "L":
                         peca = "LH" 
-                        coordenadas_fechadas.add((linha_matriz, coluna))
+                        coordenadas_fechadas[linha_matriz, coluna] = 1
                 elif coluna == size:
                     if peca[0] == "B":
                         peca = "BE"
-                        coordenadas_fechadas.add((linha_matriz, coluna))
+                        coordenadas_fechadas[linha_matriz, coluna] = 1
                     elif peca[0] == "L":
                         peca = "LV"
-                        coordenadas_fechadas.add((linha_matriz, coluna))
+                        coordenadas_fechadas[linha_matriz, coluna] = 1
                 elif linha_matriz == size:
                     if peca[0] == "B":
                         peca = "BC"
-                        coordenadas_fechadas.add((linha_matriz, coluna))
+                        coordenadas_fechadas[linha_matriz, coluna] = 1
                     elif peca[0] == "L":
                         peca = "LH"
-                        coordenadas_fechadas.add((linha_matriz, coluna))    
+                        coordenadas_fechadas[linha_matriz, coluna] = 1    
 
                 board.matriz_board[linha_matriz].append(peca)
                 coluna += 1
             linha_matriz += 1
 
             linha_atual = stdin.readline().split()
-
+        
 
         return board
        
@@ -521,7 +392,7 @@ class PipeMania(Problem):
         ult_pos = b_size - 1
         for linha in range(ult_pos+1):                
             for coluna in range(ult_pos+1):
-                if (linha, coluna) in coordenadas_fechadas: continue
+                if coordenadas_fechadas[linha, coluna]: continue
 
                 peca = state.board.matriz_board[linha][coluna]
                 
@@ -616,7 +487,10 @@ if __name__ == "__main__":
     problem = PipeMania(board)
     
     b_size = board.board_size()
-    problem.board.lock_pecas()
+
+    
+    
+    problem.board.bloqueia_pecas()
     goal_node = recursive_best_first_search(problem)
     print(goal_node.state.board.board_print(), sep="")
     
